@@ -1,7 +1,11 @@
 ﻿using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Reflection;
-
+using System.Text;
+using System.Threading.Tasks;
 namespace DalPro
 {
     public static class DALPro
@@ -9,7 +13,7 @@ namespace DalPro
         public static string ConnectionString = null!;
 
         private static readonly Dictionary<Type, PropertyInfo[]> _cacheProps =
-            new Dictionary<Type, PropertyInfo[]>();
+        new Dictionary<Type, PropertyInfo[]>();
 
         public static SqlConnection GetConnection()
         {
@@ -20,7 +24,7 @@ namespace DalPro
         // CREATE COMMAND
         // --------------------------------------------------
         private static SqlCommand CreateCommand(
-            string sql,
+        string sql,
             SqlTransaction? trans = null,
             Dictionary<string, object>? parameters = null)
         {
@@ -48,7 +52,7 @@ namespace DalPro
         // EXECUTE NON QUERY
         // --------------------------------------------------
         public static int Execute(
-            string sql,
+        string sql,
             Dictionary<string, object>? parameters = null,
             SqlTransaction? trans = null)
         {
@@ -66,7 +70,7 @@ namespace DalPro
         // EXECUTE SCALAR
         // --------------------------------------------------
         public static object ExecuteScalar(
-            string sql,
+        string sql,
             Dictionary<string, object>? parameters = null,
             SqlTransaction? trans = null)
         {
@@ -84,7 +88,7 @@ namespace DalPro
         // QUERY GENERIC
         // --------------------------------------------------
         public static List<T> Query<T>(
-            string sql,
+        string sql,
             Dictionary<string, object>? parameters = null,
             SqlTransaction? trans = null) where T : new()
         {
@@ -132,8 +136,8 @@ namespace DalPro
         // DATATABLE FOR UPDATE
         // --------------------------------------------------
         public static DataTable DataTableForUpdate(
-            string sql,
-            ref SqlDataAdapter da,
+        string sql,
+        ref SqlDataAdapter da,
             SqlTransaction? trans = null)
         {
             SqlConnection cn;
@@ -170,7 +174,7 @@ namespace DalPro
         // STORED PROCEDURE
         // --------------------------------------------------
         public static DataTable ExecuteSP(
-            string spName,
+        string spName,
             Dictionary<string, object>? parameters = null,
             SqlTransaction? trans = null)
         {
@@ -236,6 +240,8 @@ namespace DalPro
 
             if (cn.State == ConnectionState.Open)
                 cn.Close();
+
         }
+
     }
 }
