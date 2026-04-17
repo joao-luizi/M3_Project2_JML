@@ -9,10 +9,15 @@ namespace XPTOBusiness.Repositories
 {
     public interface INucleoRepository
     {
-        void GetAll();
-        void GetById(int id);
+        IEnumerable<Nucleo> GetAll();
+        Nucleo GetById(int id);
         void Add(Nucleo nucleo);
         void Update(Nucleo nucleo);
         void Delete(int id);
+
+        void TransferirExemplares(string listaIds, long idDestino);
+        DataTable GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim);
+        DataTable GetDisponibilidadePorNucleo();
+        DataTable GetDisponibilidadePorNucleoeAssunto();
     }
 }
