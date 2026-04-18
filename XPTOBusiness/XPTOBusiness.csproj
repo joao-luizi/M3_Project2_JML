@@ -7,7 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
+    <Compile Remove="DTOs\**" />
+    <EmbeddedResource Remove="DTOs\**" />
+    <None Remove="DTOs\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,7 +17,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Upskill\Modulo3\Exercicios\DalPro\DalPro.csproj" />
+    <Reference Include="DALPro">
+      <HintPath>..\DalPro\bin\Debug\net9.0\DALPro.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
