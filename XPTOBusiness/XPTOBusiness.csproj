@@ -13,12 +13,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="DALPro">
-      <HintPath>..\DalPro\bin\Debug\net9.0\DALPro.dll</HintPath>
+    <Reference Include="DalPro">
+      <HintPath>..\DalPro\obj\Debug\net9.0\DalPro.dll</HintPath>
     </Reference>
   </ItemGroup>
 
