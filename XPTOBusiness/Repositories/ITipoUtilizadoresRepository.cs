@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace XPTOBusiness.Repositories
 {
-    internal class ITipoUtilizadoresRepositories
+    public interface ITipoUtilizadoresRepositories
     {
+
     }
 }
