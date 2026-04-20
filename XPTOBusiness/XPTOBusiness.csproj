@@ -11,7 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Upskill\Modulo3\Exercicios\DalPro\DalPro.csproj" />
+    <Reference Include="DalPro">
+      <HintPath>..\DalPro\bin\Debug\net9.0\DalPro.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>
