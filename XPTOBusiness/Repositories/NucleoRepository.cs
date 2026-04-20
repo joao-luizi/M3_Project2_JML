@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DalPro;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +18,7 @@ namespace XPTOBusiness.Repositories
                 { "@local", nucleo.Local },
                 { "@tipo", nucleo.ID_TipoNucleo }
             };
-            DALPro.DALPro.ExecuteNonQuery(sql, parameters: p);
+            DALPro.Execute(sql, parameters: p);
         }
 
         public void Update(Nucleo nucleo)
@@ -29,14 +30,14 @@ namespace XPTOBusiness.Repositories
                 { "@local", nucleo.Local },
                 { "@tipo", nucleo.ID_TipoNucleo }
             };
-            DALPro.DALPro.ExecuteNonQuery(sql, parameters: p);
+            DALPro.Execute(sql, parameters: p);
         }
 
         public void Delete(int id)
         {
             string sql = "DELETE FROM Nucleos WHERE ID_Nucleo = @id";
             var p = new Dictionary<string, object> { { "@id", id } };
-            DALPro.DALPro.ExecuteNonQuery(sql, parameters: p);
+            DALPro.Execute(sql, parameters: p);
         }
 
         public void TransferirExemplares(string listaIds, long idDestino)
@@ -45,7 +46,7 @@ namespace XPTOBusiness.Repositories
                 { "@ListaIDsExemplares", listaIds },
                 { "@ID_NucleoDestino", idDestino }
             };
-            DALPro.DALPro.ExecuteQuery("Nucleos_TransferirExemplares", isStoredProcedure: true, parameters: p);
+            DALPro.ExecuteSP("Nucleos_TransferirExemplares", parameters: p);
         }
 
         public DataTable GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim)

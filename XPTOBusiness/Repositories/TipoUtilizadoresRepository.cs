@@ -10,10 +10,19 @@ using XPTOBusiness.Models;
 
 namespace XPTOBusiness.Repositories
 {
-    public  class TipoUtilizadoresRepositories : ITipoUtilizadoresRepositories
+    public interface ITipoUtilizadoresRepository
+    {
+        public List<TipoUtilizador> GetAll(string tag);
+        public TipoUtilizador GetById(int id, string tag);
+        public int Insert(TipoUtilizador tu, string tag);
+        public void Update(TipoUtilizador tu, string tag);
+        public void Delete(int id, string tag);
+
+    }
+    public  class TipoUtilizadoresRepository : ITipoUtilizadoresRepository
     {
         private readonly IConfiguration _configuration;
-        public TipoUtilizadoresRepositories(IConfiguration config)
+        public TipoUtilizadoresRepository(IConfiguration config)
         {
             _configuration = config;
         }
@@ -26,7 +35,7 @@ namespace XPTOBusiness.Repositories
         public List<TipoUtilizador> GetAll(string tag)
         {
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
-            string sql = "SELECT * FROM Products";
+            string sql = "SELECT * FROM [dbo].[TipoUtilizadores]";
 
             return DALPro.Query<TipoUtilizador>(sql);
         }
@@ -34,7 +43,7 @@ namespace XPTOBusiness.Repositories
         public TipoUtilizador GetById(int id, string tag)
         {
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
-            string sql = "SELECT * FROM  WHERE =@id";
+            string sql = "SELECT * FROM [dbo].[TipoUtilizadores] WHERE =@id";
 
             var param = new Dictionary<string, object>
         {
@@ -52,18 +61,13 @@ namespace XPTOBusiness.Repositories
             {
                 trans = DALPro.BeginTransaction();
 
-                string sql = @"INSERT INTO
-
-                           SELECT SCOPE_IDENTITY();";
+                string sql = @"INSERT INTO TipoUtilizadores (Perfil)
+                       VALUES (@Perfil);
+                       SELECT SCOPE_IDENTITY();";
 
                 var param = new Dictionary<string, object>
                 {
-                    //{"@UserName", tu.UserName},
-                    //{"@PassWord", tu.PassWord},
-                    //{"@Nome", tu.Nome},
-                    //{"@Email", tu.Email},
-                    //{"@ID_TipoUtilizador", tu.ID_TipoUtilizador},
-                    //{"@Ativo", tu.Ativo}
+                     {"@Perfil", tu.Perfil}
                 };
                 int ret = Convert.ToInt32(DALPro.ExecuteScalar(sql, param, trans));
                 DALPro.Commit(trans);
@@ -85,16 +89,14 @@ namespace XPTOBusiness.Repositories
             try
             {
                 trans = DALPro.BeginTransaction();
-                string sql = @"UPDATE Products
-                       SET ProductName=@ProductName,
-                           UnitPrice=@UnitPrice
-                       WHERE ProductID=@ProductID";
+                string sql = @"UPDATE TipoUtilizadores
+                       SET Perfil = @Perfil
+                       WHERE ID_TipoUtilizador = @ID_TipoUtilizador;"; ;
 
                 var param = new Dictionary<string, object>
                 {
-                    //{"@ProductID", p.ProductID},
-                    //{"@ProductName", p.ProductName},
-                    //{"@UnitPrice", p.UnitPrice}
+                    {"@Perfil", tu.Perfil},
+                    {"@ID_TipoUtilizador", tu.ID_TipoUtilizador}
                 };
 
                 DALPro.Execute(sql, param, trans);
@@ -114,12 +116,13 @@ namespace XPTOBusiness.Repositories
             try
             {
 
-                string sql = "DELETE FROM Products WHERE ProductID=@id";
+                string sql = @"DELETE FROM TipoUtilizadores
+                       WHERE ID_TipoUtilizador = @id;";
 
                 var param = new Dictionary<string, object>
-        {
-            {"@id", id}
-        };
+                {
+                    {"@id", id}
+                };
 
                 DALPro.Execute(sql, param, trans);
             }

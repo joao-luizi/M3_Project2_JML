@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace XPTOBusiness.DTOs
+{
+    public class RequisicaoDto
+    {
+        //public long IdRequisicao { get; set; }
+
+        public long IdUtilizador { get; set; }
+
+        public long IdExemplar { get; set; }
+
+        //public DateTime DataRequisicao { get; set; }
+
+        //public DateTime? DataEntrega { get; set; }
+    }
+}

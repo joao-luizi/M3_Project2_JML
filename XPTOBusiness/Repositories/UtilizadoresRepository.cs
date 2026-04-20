@@ -10,6 +10,15 @@ using XPTOBusiness.Models;
 
 namespace XPTOBusiness.Repositories
 {
+    public interface IUtilizadoresRepository
+    {
+        public List<Utilizador> GetAll(string tag);
+        public Utilizador GetById(long id, string tag);
+        public long Insert(Utilizador u, string tag);
+        public void Update(Utilizador u, string tag);
+        public void Delete(long id, string tag);
+    }
+
     public  class UtilizadoresRepository : IUtilizadoresRepository
     {
         private readonly IConfiguration _configuration;
@@ -26,7 +35,7 @@ namespace XPTOBusiness.Repositories
         public List<Utilizador> GetAll(string tag)
         {
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
-            string sql = "SELECT * FROM Products";
+            string sql = "SELECT * FROM [dbo].[Utilizadores]";
 
             return DALPro.Query<Utilizador>(sql);
         }
@@ -34,7 +43,7 @@ namespace XPTOBusiness.Repositories
         public Utilizador GetById(long id, string tag)
         {
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
-            string sql = "SELECT * FROM  WHERE =@id";
+            string sql = "SELECT * FROM [dbo].[Utilizadores] WHERE =@id";
 
             var param = new Dictionary<string, object>
         {
@@ -52,9 +61,12 @@ namespace XPTOBusiness.Repositories
             {
                 trans = DALPro.BeginTransaction();
 
-                string sql = @"INSERT INTO
-
-                           SELECT SCOPE_IDENTITY();";
+                string sql = @"INSERT INTO [dbo].[Utilizadores]
+                       (UserName, PassWord, Nome, Email, ID_TipoUtilizador, Ativo)
+                       VALUES
+                       (@UserName, @PassWord, @Nome, @Email, @ID_TipoUtilizador, @Ativo);
+                       
+                       SELECT SCOPE_IDENTITY();";
 
                 var param = new Dictionary<string, object>
                 {
@@ -65,7 +77,7 @@ namespace XPTOBusiness.Repositories
                     {"@ID_TipoUtilizador", u.ID_TipoUtilizador},
                     {"@Ativo", u.Ativo}
                 };
-                int ret = Convert.ToInt32(DALPro.ExecuteScalar(sql, param, trans));
+                long ret = Convert.ToInt32(DALPro.ExecuteScalar(sql, param, trans));
                 DALPro.Commit(trans);
                 return ret;
             }
@@ -85,16 +97,25 @@ namespace XPTOBusiness.Repositories
             try
             {
                 trans = DALPro.BeginTransaction();
-                string sql = @"UPDATE Products
-                       SET ProductName=@ProductName,
-                           UnitPrice=@UnitPrice
-                       WHERE ProductID=@ProductID";
+                string sql = @"UPDATE [dbo].[Utilizadores]
+                       SET
+                           UserName = @UserName,
+                           PassWord = @PassWord,
+                           Nome = @Nome,
+                           Email = @Email,
+                           ID_TipoUtilizador = @ID_TipoUtilizador,
+                           Ativo = @Ativo
+                       WHERE ID_Utilizador = @ID_Utilizador";
 
                 var param = new Dictionary<string, object>
                 {
-                    //{"@ProductID", p.ProductID},
-                    //{"@ProductName", p.ProductName},
-                    //{"@UnitPrice", p.UnitPrice}
+                    {"@ID_Utilizador", u.ID_Utilizador},
+                    {"@UserName", u.UserName},
+                    {"@PassWord", u.PassWord},
+                    {"@Nome", u.Nome},
+                    {"@Email", u.Email},
+                    {"@ID_TipoUtilizador", u.ID_TipoUtilizador},
+                    {"@Ativo", u.Ativo}
                 };
 
                 DALPro.Execute(sql, param, trans);
@@ -113,15 +134,16 @@ namespace XPTOBusiness.Repositories
             SqlTransaction? trans = null;
             try
             {
-
-                string sql = "DELETE FROM Products WHERE ProductID=@id";
+                trans = DALPro.BeginTransaction();
+                string sql = "DELETE FROM [dbo].[Utilizadores] WHERE ID_Utilizador = @id";
 
                 var param = new Dictionary<string, object>
-        {
-            {"@id", id}
-        };
+                {
+                    {"@id", id}
+                };
 
                 DALPro.Execute(sql, param, trans);
+                DALPro.Commit(trans);
             }
             catch
             {
