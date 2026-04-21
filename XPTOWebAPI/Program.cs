@@ -1,42 +1,61 @@
-namespace XPTOWebAPI
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
+using XPTOBusiness.Repositories;
+using XPTOBusiness.Services;
+using XPTOBusiness.DTOs;
+using DalPro;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using XPTOBusiness.Services.XPTOBusiness.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-            builder.Services.AddAuthorization();
+DALPro.ConnectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string não encontrada.");
 
+builder.Services.AddScoped<INucleoRepository, NucleoRepository>();
+builder.Services.AddScoped<ITipoNucleoRepository, TipoNucleoRepository>();
+builder.Services.AddScoped<IExemplaresNucleosRepository, ExemplaresNucleosRepository>();
+builder.Services.AddScoped<NucleoService>();
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-var summaries = new[]
+if (app.Environment.IsDevelopment())
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-            app.MapGet("/weatherforecast", (HttpContext httpContext) =>
+app.UseHttpsRedirection();
+
+
+var nucleosGroup = app.MapGroup("/api/nucleos");
+
+nucleosGroup.MapGet("/", (NucleoService service) =>
+    Results.Ok(service.ObterTodos()))
+    .WithName("GetNucleos");
+
+nucleosGroup.MapPost("/", (SaveNucleoDTO dto, NucleoService service) =>
 {
-    var forecast = Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-                    {
-                        Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                        TemperatureC = Random.Shared.Next(-20, 55),
-                        Summary = summaries[Random.Shared.Next(summaries.Length)]
-                    })
-        .ToArray();
-    return forecast;
-});
+    service.CriarNucleo(dto);
+    return Results.Created($"/api/nucleos", dto);
+})
+.WithName("CreateNucleo");
+
+nucleosGroup.MapPost("/transferencia", (TransferenciaExemplaresDTO dados, NucleoService service) =>
+{
+    service.TransferirExemplares(dados);
+    return Results.Ok(new { message = "Transferência concluída com sucesso." });
+})
+.WithName("TransferirExemplares");
+
+nucleosGroup.MapGet("/relatorio-requisicoes", (DateTime inicio, DateTime fim, NucleoService service) =>
+    Results.Ok(service.ObterResumoRequisicoes(inicio, fim)))
+    .WithName("GetRelatorioRequisicoes");
+
+nucleosGroup.MapGet("/disponibilidade", (bool porAssunto, NucleoService service) =>
+    Results.Ok(service.ObterDisponibilidade(porAssunto)))
+    .WithName("GetDisponibilidade");
 
 app.Run();
-        }
-    }
-}

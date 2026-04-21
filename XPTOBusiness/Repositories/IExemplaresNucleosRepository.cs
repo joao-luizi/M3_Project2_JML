@@ -7,7 +7,7 @@ using XPTOBusiness.Models;
 
 namespace XPTOBusiness.Repositories
 {
-    internal interface IExemplaresNucleosRepository
+    public interface IExemplaresNucleosRepository
     {
         IEnumerable<ExemplarNucleo> GetAll();
         ExemplarNucleo GetByExemplarId(long idExemplar);
