@@ -10,7 +10,7 @@ namespace XPTOBusiness.Repositories
     public interface ITipoNucleoRepository
     {
         IEnumerable<TipoNucleo> GetAll();
-        TipoNucleo GetById(byte id);
+        TipoNucleo? GetById(byte id);
         void Add(TipoNucleo tipo);
         void Update(TipoNucleo tipo);
         void Delete(byte id);

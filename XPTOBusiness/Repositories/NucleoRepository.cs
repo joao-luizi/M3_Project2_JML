@@ -1,5 +1,7 @@
-﻿using System;
+﻿using DalPro;
+using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +19,7 @@ namespace XPTOBusiness.Repositories
                 { "@local", nucleo.Local },
                 { "@tipo", nucleo.ID_TipoNucleo }
             };
-            DALPro.DALPro.ExecuteNonQuery(sql, parameters: p);
+            DALPro.Execute(sql, parameters: p);
         }
 
         public void Update(Nucleo nucleo)
@@ -29,14 +31,14 @@ namespace XPTOBusiness.Repositories
                 { "@local", nucleo.Local },
                 { "@tipo", nucleo.ID_TipoNucleo }
             };
-            DALPro.DALPro.ExecuteNonQuery(sql, parameters: p);
+            DALPro.Execute(sql, parameters: p);
         }
 
         public void Delete(int id)
         {
             string sql = "DELETE FROM Nucleos WHERE ID_Nucleo = @id";
             var p = new Dictionary<string, object> { { "@id", id } };
-            DALPro.DALPro.ExecuteNonQuery(sql, parameters: p);
+            DALPro.Execute(sql, parameters: p);
         }
 
         public void TransferirExemplares(string listaIds, long idDestino)
@@ -45,7 +47,7 @@ namespace XPTOBusiness.Repositories
                 { "@ListaIDsExemplares", listaIds },
                 { "@ID_NucleoDestino", idDestino }
             };
-            DALPro.DALPro.ExecuteQuery("Nucleos_TransferirExemplares", isStoredProcedure: true, parameters: p);
+            DALPro.ExecuteSP("Nucleos_TransferirExemplares", parameters: p);
         }
 
         public DataTable GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim)
@@ -54,17 +56,17 @@ namespace XPTOBusiness.Repositories
                 { "@DataInicio", inicio },
                 { "@DataFim", fim }
             };
-            return DALPro.DALPro.ExecuteQuery("Nucleos_MostrarRequisicoes", isStoredProcedure: true, parameters: p);
+            return DALPro.ExecuteSP("Nucleos_MostrarRequisicoes", parameters: p);
         }
 
         public DataTable GetDisponibilidadePorNucleo()
         {
-            return DALPro.DALPro.ExecuteQuery("Disponibilidade_Exemplares_Nucleo", isStoredProcedure: true);
+            return DALPro.ExecuteSP("Disponibilidade_Exemplares_Nucleo");
         }
 
-        public DataTable GetDisponibilidadePorNucleoEAssunto()
+        public DataTable GetDisponibilidadePorNucleoeAssunto()
         {
-            return DALPro.DALPro.ExecuteQuery("Disponibilidade_Exemplares_NucleoAssunto", isStoredProcedure: true);
+            return DALPro.ExecuteSP("Disponibilidade_Exemplares_NucleoAssunto");
         }
 
         public IEnumerable<Nucleo> GetAll() { return new List<Nucleo>(); }
