@@ -108,7 +108,7 @@ namespace DalPro
 
             while (dr.Read())
             {
-                
+
                 T obj = new T();
 
                 foreach (var prop in props)
