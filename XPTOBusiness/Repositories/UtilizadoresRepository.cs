@@ -17,6 +17,8 @@ namespace XPTOBusiness.Repositories
         public long Insert(Utilizador u, string tag);
         public void Update(Utilizador u, string tag);
         public void Delete(long id, string tag);
+        public void DeleteUserById(long id, string tag);
+        public List<Requisicao> GetInactiveUsersEligibleForDeletion(string tag);
     }
 
     public  class UtilizadoresRepository : IUtilizadoresRepository
@@ -151,6 +153,39 @@ namespace XPTOBusiness.Repositories
                     DALPro.Rollback(trans);
                 throw;
             }
+        }
+
+        public List<Requisicao> GetInactiveUsersEligibleForDeletion(string tag)
+        {
+            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+
+            string sql = @"
+            SELECT *
+            FROM Requisicoes R
+            INNER JOIN Utilizadores U
+                ON R.ID_Utilizador = U.ID_Utilizador
+            WHERE U.ID_TipoUtilizador = 1
+            GROUP BY R.ID_Utilizador
+            HAVING 
+                SUM(CASE WHEN R.DataRequisicao >= DATEADD(YEAR, -1, GETDATE()) THEN 1 ELSE 0 END) = 0
+                AND SUM(CASE WHEN R.DataEntrega IS NULL THEN 1 ELSE 0 END) = 0;";
+
+            return DALPro.Query<Requisicao>(sql);
+        }
+
+        public void DeleteUserById(long id, string tag)
+        {
+            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+
+            string sql = @"
+            DELETE FROM Infracoes WHERE ID_Utilizador = @Id;
+            DELETE FROM Requisicoes WHERE ID_Utilizador = @Id;
+            DELETE FROM Utilizadores WHERE ID_Utilizador = @Id;";
+            var param = new Dictionary<string, object>
+                {
+                    {"@Id", id}
+                };
+            DALPro.Execute(sql,param);
         }
     }
 }

@@ -7,12 +7,14 @@ namespace XPTOWebAPI.Services
     {
         public bool ReactivateUser(long id, string tag);
         public bool CancelUser(long id, string tag);
+
+        public void DeleteInactive(string tag);
     }
     public class UtilizadorService : IUtilizadorService
     {
         private readonly IUtilizadoresRepository _utilizadoresRepo;
         private readonly IRequisicoesRepository _requisicoesRepo;
-        private readonly IExemplaresRepository _exemplaresRepo;
+        //private readonly IExemplaresRepository _exemplaresRepo;
         private readonly IInfracoesRepository _infracoesRepo;
 
         private readonly ILogger _logger;
@@ -21,7 +23,7 @@ namespace XPTOWebAPI.Services
         {
             _utilizadoresRepo = utilizadoresRepo;
             _requisicoesRepo = requisicoesRepo;
-            _exemplaresRepo = exemplaresRepo;
+            //_exemplaresRepo = exemplaresRepo;
             _infracoesRepo = infracoesRepo;
             _logger = logger;
         }
@@ -83,6 +85,21 @@ namespace XPTOWebAPI.Services
 
             return true;
         }
-        
+
+        public int DeleteInactiveUsers(string tag)
+        {
+            var users = _utilizadoresRepo.GetInactiveUsersEligibleForDeletion(tag);
+
+            int count = 0;
+
+            foreach (var userId in users)
+            {
+                _utilizadoresRepo.DeleteUserById(userId, tag);
+                count++;
+            }
+
+            return count;
+        }
+
     }
 }

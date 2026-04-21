@@ -53,16 +53,6 @@ var app = builder.Build();
                 app.UseSwaggerUI();
             }
 
-            
-            
-            //12.Deve ser possivel eliminar leitores que estejam há mais de um ano sem
-            //fazer qualquer requisição, desde que não tenham nenhuma requisição
-            //ativa nesse momento
-            //15.Deve ser permitido ao leitor cancelar a respetiva inscrição, devendo
-            //assumir - se que, nesse caso, é feita a devolução de todos os exemplares
-            //que possa ter requisitado e não tenha ainda devolvido
-
-
             //5.Cada leitor pode ter requisitados, no máximo, quatro exemplares
             app.MapPost("/requisitar", (RequisicaoDTO dto, IRequisicaoService service) =>
             {
@@ -118,6 +108,9 @@ var app = builder.Build();
                 }
             });
 
+            //15.Deve ser permitido ao leitor cancelar a respetiva inscrição, devendo
+            //assumir - se que, nesse caso, é feita a devolução de todos os exemplares
+            //que possa ter requisitado e não tenha ainda devolvido
             app.MapPost("/cancel", (long id, IUtilizadorService service) => 
             {
                 try
@@ -135,6 +128,25 @@ var app = builder.Build();
                 }
             });
 
+            //12.Deve ser possivel eliminar leitores que estejam há mais de um ano sem
+            //fazer qualquer requisição, desde que não tenham nenhuma requisição
+            //ativa nesse momento
+            app.MapPost("/deleteinactive", (long id, IUtilizadorService service) =>
+            {
+                try
+                {
+                    service.DeleteInactive("XPTOConn");
+
+                    return Results.Ok(new
+                    {
+                        message = "Leitores inativos apagados."
+                    });
+                }
+                catch (Exception ex)
+                {
+                    return Results.BadRequest(new { error = ex.Message });
+                }
+            });
             app.Run();
         }
     }
