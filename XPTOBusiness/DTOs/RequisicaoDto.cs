@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace XPTOBusiness.DTOs
 {
-    public class RequisicaoDto
+    public class RequisicaoDTO
     {
         //public long IdRequisicao { get; set; }
 

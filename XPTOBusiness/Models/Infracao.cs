@@ -8,7 +8,7 @@ namespace XPTOBusiness.Models
 {
     public class Infracao
     {
-        public long IdUtilizador { get; set; }
+        public long ID_Utilizador { get; set; }
 
         public int InfracoesTotal { get; set; }
 

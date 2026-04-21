@@ -8,11 +8,11 @@ namespace XPTOBusiness.Models
 {
     public class Requisicao
     {
-        public long IdRequisicao { get; set; }
+        public long ID_Requisicao { get; set; }
 
-        public long IdUtilizador { get; set; }
+        public long ID_Utilizador { get; set; }
 
-        public long IdExemplar { get; set; }
+        public long ID_Exemplar { get; set; }
 
         public DateTime DataRequisicao { get; set; }
 
