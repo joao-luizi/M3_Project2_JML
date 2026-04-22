@@ -4,18 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace XPTOBusiness.Models
+namespace XPTOBusiness.DTOs
 {
-    public class Requisicao
+    public class HistoricoLeitorDTO
     {
-        public long IdRequisicao { get; set; }
-
-        public long IdUtilizador { get; set; }
-
-        public long IdExemplar { get; set; }
-
+        public string Titulo { get; set; } = null!;
+        public string Nucleo { get; set; } = null!;
         public DateTime DataRequisicao { get; set; }
-
         public DateTime? DataEntrega { get; set; }
     }
 }

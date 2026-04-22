@@ -9,10 +9,7 @@ namespace XPTOBusiness.Repositories
 {
     public interface IExemplaresRepository
     {
-        IEnumerable<Exemplares> GetAll();
-        Exemplares GetById(long id);
-        void Add(Exemplares exemplar);
-        void Update(Exemplares exemplar);
-        void Delete(long id);
+        public void TransferirExemplar(long idExemplar, int idNovoNucleo);
+        public void AdicionarExemplar(long idObra, int idNucleoInicial);
     }
 }

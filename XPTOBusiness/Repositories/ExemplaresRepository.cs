@@ -10,39 +10,25 @@ namespace XPTOBusiness.Repositories
 {
     public class ExemplarRepository : IExemplaresRepository
     {
-        public IEnumerable<Exemplares> GetAll()
+        public void TransferirExemplar(long idExemplar, int idNovoNucleo)
         {
-            return DALPro.Query<Exemplares>("SELECT ID_Exemplar, ID_Obra FROM Exemplares");
-        }
-
-        public Exemplares? GetById(long id)
+            var p = new Dictionary<string, object>
         {
-            string sql = "SELECT ID_Exemplar, ID_Obra FROM Exemplares WHERE ID_Exemplar = @id";
-            var par = new Dictionary<string, object> { { "@id", id } };
-            return DALPro.Query<Exemplares>(sql, par).FirstOrDefault();
-        }
-
-        public void Add(Exemplares exemplar)
-        {
-            string sql = "INSERT INTO Exemplares (ID_Obra) VALUES (@ID_Obra)";
-            var par = new Dictionary<string, object> { { "@ID_Obra", exemplar.ID_Obra } };
-            DALPro.Execute(sql, par);
-        }
-
-        public void Update(Exemplares exemplar)
-        {
-            string sql = "UPDATE Exemplares SET ID_Obra = @ID_Obra WHERE ID_Exemplar = @id";
-            var par = new Dictionary<string, object> {
-            { "@id", exemplar.ID_Exemplar },
-            { "@ID_Obra", exemplar.ID_Obra }
+            { "@ID_Exemplar", idExemplar },
+            { "@ID_Nucleo", idNovoNucleo }
         };
-            DALPro.Execute(sql, par);
+            DALPro.ExecuteSP("sp_TransferirExemplar", p);
         }
 
-        public void Delete(long id)
+        // Atualizar número de exemplares
+        public void AdicionarExemplar(long idObra, int idNucleoInicial)
         {
-            DALPro.Execute("DELETE FROM Exemplares WHERE ID_Exemplar = @id",
-                new Dictionary<string, object> { { "@id", id } });
+            var p = new Dictionary<string, object>
+        {
+            { "@ID_Obra", idObra },
+            { "@ID_Nucleo", idNucleoInicial }
+        };
+            DALPro.ExecuteSP("sp_AdicionarExemplar", p);
         }
     }
 }
