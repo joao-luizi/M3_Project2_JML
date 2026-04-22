@@ -101,7 +101,7 @@ nucleosGroup.MapPost("/", (SaveNucleoDTO dto, NucleoService service) =>
 //.RequireAuthorization(policy => policy.RequireRole("Admin"))
 //.WithName("TransferirExemplares");
 
-//DASHBOARD (ponto 13)
+//ponto 13
 nucleosGroup.MapGet("/dashboard", (NucleoService service) =>
 {
     var dados = service.ObterDadosDecisao();
