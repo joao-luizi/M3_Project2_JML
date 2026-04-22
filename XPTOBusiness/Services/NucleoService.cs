@@ -38,24 +38,24 @@ namespace XPTOBusiness.Services
             }
 
             //pontos 7 e 9
-            //public void TransferirExemplares(TransferenciaExemplaresDTO dados)
-            //{
-            //    foreach (var idExemplar in dados.IdsExemplares)
-            //    {
-            //        var vinculoAtual = _exemplaresRepo.GetByExemplarId(idExemplar);
-            //        var totalNoNucleo = _exemplaresRepo.GetAll()
-            //                            .Count(x => x.ID_Nucleo == vinculoAtual.ID_Nucleo);
+            public void TransferirExemplares(TransferenciaExemplaresDTO dados)
+            {
+                foreach (var idExemplar in dados.IdsExemplares)
+                {
+                    var vinculoAtual = _exemplaresRepo.GetByExemplarId(idExemplar);
+                    var totalNoNucleo = _exemplaresRepo.GetAll()
+                                        .Count(x => x.ID_Nucleo == vinculoAtual.ID_Nucleo);
 
-            //        if (totalNoNucleo <= 1)
-            //        {
-            //            throw new Exception($"Transferência negada: O núcleo {vinculoAtual.ID_Nucleo} " +
-            //                                "não pode ficar com menos de 1 exemplar para consulta.");
-            //        }
-            //    }
+                    if (totalNoNucleo <= 1)
+                    {
+                        throw new Exception($"Transferência negada: O núcleo {vinculoAtual.ID_Nucleo} " +
+                                            "não pode ficar com menos de 1 exemplar para consulta.");
+                    }
+                }
 
-            //    string listaCsv = string.Join(",", dados.IdsExemplares);
-            //    _nucleoRepo.TransferirExemplares(listaCsv, dados.IdNucleoDestino);
-            //}
+                string listaCsv = string.Join(",", dados.IdsExemplares);
+                _nucleoRepo.TransferirExemplares(listaCsv, dados.IdNucleoDestino);
+            }
 
             public IEnumerable<ResumoRequisicoesDTO> ObterResumoRequisicoes(DateTime inicio, DateTime fim)
             {

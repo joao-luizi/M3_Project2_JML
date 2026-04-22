@@ -93,13 +93,13 @@ nucleosGroup.MapPost("/", (SaveNucleoDTO dto, NucleoService service) =>
 .RequireAuthorization(policy => policy.RequireRole("Admin"))
 .WithName("CreateNucleo");
 
-//nucleosGroup.MapPost("/transferencia", (TransferenciaExemplaresDTO dados, NucleoService service) =>
-//{
-//    service.TransferirExemplares(dados);
-//    return Results.Ok(new { message = "Transferência concluída com sucesso." });
-//})
-//.RequireAuthorization(policy => policy.RequireRole("Admin"))
-//.WithName("TransferirExemplares");
+nucleosGroup.MapPost("/transferencia", (TransferenciaExemplaresDTO dados, NucleoService service) =>
+{
+    service.TransferirExemplares(dados);
+    return Results.Ok(new { message = "Transferência concluída com sucesso." });
+})
+.RequireAuthorization(policy => policy.RequireRole("Admin"))
+.WithName("TransferirExemplares");
 
 //ponto 13
 nucleosGroup.MapGet("/dashboard", (NucleoService service) =>
