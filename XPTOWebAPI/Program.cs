@@ -4,6 +4,7 @@ using System.Runtime.ConstrainedExecution;
 using System.Runtime.Intrinsics.X86;
 using XPTOBusiness.DTOs;
 using XPTOBusiness.Models;
+using XPTOBusiness.Repositories;
 using XPTOWebAPI.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -35,11 +36,17 @@ var builder = WebApplication.CreateBuilder(args);
                 Title = "jwtToken",
                 Version = "v1"
             }));
-
+            builder.Services.AddScoped<IUtilizadorService, UtilizadorService>();
+            builder.Services.AddScoped<IRequisicaoService, RequisicaoService>();
+            builder.Services.AddScoped<IExemplaresRepository, ExemplaresRepository>();
+            builder.Services.AddScoped<IInfracoesRepository, InfracoesRepository>();
+            builder.Services.AddScoped<IRequisicoesRepository, RequisicoesRepository>();
+            builder.Services.AddScoped<ITipoUtilizadoresRepository, TipoUtilizadoresRepository>();
+            builder.Services.AddScoped<IUtilizadoresRepository, UtilizadoresRepository>();
             builder.Services.AddAuthorization();
 
 
-var app = builder.Build();
+            var app = builder.Build();
 
             app.UseCors("cors");
             // Configure the HTTP request pipeline.
@@ -52,8 +59,10 @@ var app = builder.Build();
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            //5, 6, 10, 11, 12, 14, 15
             //5.Cada leitor pode ter requisitados, no máximo, quatro exemplares
+            //14.Os leitores deverão ter a possibilidade de proceder a requisições e
+            //devoluções, dentro das normas da biblioteca
             app.MapPost("/requisitar", (RequisicaoDTO dto, IRequisicaoService service) =>
             {
                 try
@@ -131,16 +140,20 @@ var app = builder.Build();
             //12.Deve ser possivel eliminar leitores que estejam há mais de um ano sem
             //fazer qualquer requisição, desde que não tenham nenhuma requisição
             //ativa nesse momento
-            app.MapPost("/deleteinactive", (long id, IUtilizadorService service) =>
+            app.MapPost("/deleteinactive", (IUtilizadorService service) =>
             {
                 try
                 {
-                    service.DeleteInactive("XPTOConn");
-
+                    int deleted = service.DeleteInactiveUsers("XPTOConn");
+                    string msg;
+                    if (deleted > 0)
+                        msg = $"{deleted} leitor(es) inativo(s) apagado(s).";
+                    else
+                        msg = $"Nenhum leitor apagado.";
                     return Results.Ok(new
                     {
-                        message = "Leitores inativos apagados."
-                    });
+                        message = msg
+                    }); 
                 }
                 catch (Exception ex)
                 {

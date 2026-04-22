@@ -45,7 +45,7 @@ namespace XPTOBusiness.Repositories
         public Utilizador GetById(long id, string tag)
         {
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
-            string sql = "SELECT * FROM [dbo].[Utilizadores] WHERE =@id";
+            string sql = "SELECT * FROM [dbo].[Utilizadores] WHERE ID_Utilizador = @id";
 
             var param = new Dictionary<string, object>
         {
@@ -121,6 +121,7 @@ namespace XPTOBusiness.Repositories
                 };
 
                 DALPro.Execute(sql, param, trans);
+                trans.Commit();
             }
             catch
             {
@@ -160,7 +161,7 @@ namespace XPTOBusiness.Repositories
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
 
             string sql = @"
-            SELECT *
+            SELECT R.[ID_Utilizador]
             FROM Requisicoes R
             INNER JOIN Utilizadores U
                 ON R.ID_Utilizador = U.ID_Utilizador
@@ -175,17 +176,34 @@ namespace XPTOBusiness.Repositories
 
         public void DeleteUserById(long id, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
 
-            string sql = @"
-            DELETE FROM Infracoes WHERE ID_Utilizador = @Id;
-            DELETE FROM Requisicoes WHERE ID_Utilizador = @Id;
-            DELETE FROM Utilizadores WHERE ID_Utilizador = @Id;";
-            var param = new Dictionary<string, object>
+            using var conn = new SqlConnection(DALPro.ConnectionString);
+            conn.Open();
+
+            using var trans = conn.BeginTransaction();
+
+            try
+            {
+                string sql = @"
+                DELETE FROM Infracoes WHERE ID_Utilizador = @Id;
+                DELETE FROM Requisicoes WHERE ID_Utilizador = @Id;
+                DELETE FROM Utilizadores WHERE ID_Utilizador = @Id;";
+
+                var param = new Dictionary<string, object>
                 {
                     {"@Id", id}
                 };
-            DALPro.Execute(sql,param);
+
+                DALPro.Execute(sql, param, trans);
+
+                trans.Commit();
+            }
+            catch
+            {
+                trans.Rollback();
+                throw;
+            }
         }
     }
 }

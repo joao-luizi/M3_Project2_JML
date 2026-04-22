@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,15 +10,15 @@ namespace XPTOBusiness.Repositories
 {
     public interface INucleoRepository
     {
-        IEnumerable<Nucleo> GetAll();
-        Nucleo GetById(int id);
-        void Add(Nucleo nucleo);
-        void Update(Nucleo nucleo);
-        void Delete(int id);
+        public IEnumerable<Nucleo> GetAll();
+        public Nucleo GetById(int id);
+        public void Add(Nucleo nucleo);
+        public void Update(Nucleo nucleo);
+        public void Delete(int id);
 
-        void TransferirExemplares(string listaIds, long idDestino);
-        DataTable GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim);
-        DataTable GetDisponibilidadePorNucleo();
-        DataTable GetDisponibilidadePorNucleoeAssunto();
+        public void TransferirExemplares(string listaIds, long idDestino);
+        public DataTable GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim);
+        public DataTable GetDisponibilidadePorNucleo();
+        public DataTable GetDisponibilidadePorNucleoeAssunto();
     }
 }

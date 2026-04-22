@@ -1,6 +1,7 @@
 ﻿using DalPro;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -55,20 +56,20 @@ namespace XPTOBusiness.Repositories
                 { "@DataInicio", inicio },
                 { "@DataFim", fim }
             };
-            return DALPro.DALPro.ExecuteQuery("Nucleos_MostrarRequisicoes", isStoredProcedure: true, parameters: p);
+            return DALPro.ExecuteSP("Nucleos_MostrarRequisicoes", parameters: p);
         }
 
         public DataTable GetDisponibilidadePorNucleo()
         {
-            return DALPro.DALPro.ExecuteQuery("Disponibilidade_Exemplares_Nucleo", isStoredProcedure: true);
+            return DALPro.ExecuteSP("Disponibilidade_Exemplares_Nucleo");
         }
 
-        public DataTable GetDisponibilidadePorNucleoEAssunto()
+        public DataTable GetDisponibilidadePorNucleoeAssunto()
         {
-            return DALPro.DALPro.ExecuteQuery("Disponibilidade_Exemplares_NucleoAssunto", isStoredProcedure: true);
+            return DALPro.ExecuteSP("Disponibilidade_Exemplares_NucleoAssunto");
         }
 
         public IEnumerable<Nucleo> GetAll() { return new List<Nucleo>(); }
         public Nucleo GetById(int id) { return null; }
-    }
+    }   
 }

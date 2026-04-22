@@ -38,6 +38,9 @@ namespace XPTOWebAPI.Services
             if (user.ID_TipoUtilizador != 1)
                 throw new Exception("Apenas leitores podem requisitar.");
 
+            if (user.Ativo == false)
+                throw new Exception("Apenas leitores ativos podem requisitar.");
+
             var infracao = _infracoesRepo.GetByUserId(userId, tag);
 
             if (infracao != null && infracao.InfracoesAtuais > 3)
@@ -57,8 +60,8 @@ namespace XPTOWebAPI.Services
                 throw new Exception("Exemplar já requisitado.");
 
             var availableInNucleo = _exemplaresRepo.CountByObraAndNucleo(
-                exemplar.IdObra,
-                exemplar.IdNucleo, 
+                exemplar.ID_Obra,
+                exemplar.ID_Nucleo, 
                 tag
             );
 

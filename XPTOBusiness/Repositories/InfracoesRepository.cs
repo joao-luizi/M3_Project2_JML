@@ -88,7 +88,7 @@ namespace XPTOBusiness.Repositories
 
                 var param = new Dictionary<string, object>
         {
-            { "@IdUtilizador", e.IdUtilizador },
+            { "@IdUtilizador", e.ID_Utilizador },
             { "@InfracoesTotal", e.InfracoesTotal },
             { "@InfracoesAtuais", e.InfracoesAtuais }
         };
@@ -124,7 +124,7 @@ namespace XPTOBusiness.Repositories
 
                 var param = new Dictionary<string, object>
         {
-            { "@IdUtilizador", e.IdUtilizador },
+            { "@IdUtilizador", e.ID_Utilizador },
             { "@InfracoesTotal", e.InfracoesTotal },
             { "@InfracoesAtuais", e.InfracoesAtuais }
         };

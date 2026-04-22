@@ -8,8 +8,8 @@ namespace XPTOBusiness.DTOs
 {
     public class ExemplarDTO
     {
-        public long IdExemplar { get; set; }
-        public long IdObra { get; set; }
-        public long IdNucleo { get; set; }
+        public long ID_Exemplar { get; set; }
+        public long ID_Obra { get; set; }
+        public long ID_Nucleo { get; set; }
     }
 }

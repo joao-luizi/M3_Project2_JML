@@ -8,7 +8,7 @@ namespace XPTOWebAPI.Services
         public bool ReactivateUser(long id, string tag);
         public bool CancelUser(long id, string tag);
 
-        public void DeleteInactive(string tag);
+        public int DeleteInactiveUsers(string tag);
     }
     public class UtilizadorService : IUtilizadorService
     {
@@ -63,6 +63,7 @@ namespace XPTOWebAPI.Services
                 throw new Exception("Utilizador já está ativo.");
             utilizador.Ativo = true;
 
+            _utilizadoresRepo.Update(utilizador, tag);
             var infracoes = _infracoesRepo.GetByUserId(id, tag);
 
             if (infracoes == null)
@@ -92,9 +93,9 @@ namespace XPTOWebAPI.Services
 
             int count = 0;
 
-            foreach (var userId in users)
+            foreach (var user in users)
             {
-                _utilizadoresRepo.DeleteUserById(userId, tag);
+                _utilizadoresRepo.DeleteUserById(user.ID_Utilizador, tag);
                 count++;
             }
 

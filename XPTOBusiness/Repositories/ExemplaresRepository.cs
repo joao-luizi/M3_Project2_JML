@@ -166,9 +166,9 @@ namespace XPTOBusiness.Repositories
             WHERE E.ID_Exemplar = @idExemplar";
 
             var param = new Dictionary<string, object>
-    {
-        { "@idExemplar", exemplarId }
-    };
+            {
+                { "@idExemplar", exemplarId }
+            };
 
             return DALPro.Query<ExemplarDTO>(sql, param).FirstOrDefault();
 

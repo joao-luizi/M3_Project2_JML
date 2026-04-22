@@ -53,10 +53,10 @@ namespace XPTOBusiness.Repositories
             {
                 trans = DALPro.BeginTransaction();
 
-                string sql = @"UPDATE SET " +
+                string sql = @"UPDATE Requisicoes SET " +
                 "DataEntrega = @DataEntrega " +
                 "FROM [dbo].[Requisicoes] " +
-                "WHERE ID_Utilizador = @id AND DataEntrega = NULL";
+                "WHERE ID_Utilizador = @id AND DataEntrega IS NULL";
 
                 var param = new Dictionary<string, object>
         {
@@ -86,7 +86,7 @@ namespace XPTOBusiness.Repositories
         public Requisicao GetById(long id, string tag)
         {
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
-            string sql = "SELECT * FROM [dbo].[Requisicoes] WHERE IdExemplar = @id";
+            string sql = "SELECT * FROM [dbo].[Requisicoes] WHERE ID_Exemplar = @id";
 
             var param = new Dictionary<string, object>
     {
@@ -99,7 +99,7 @@ namespace XPTOBusiness.Repositories
         public Requisicao GetActiveByExemplarId(long id, string tag)
         {
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
-            string sql = "SELECT * FROM [dbo].[Requisicoes] WHERE ID_Exemplar = @id AND DataEntrega = NULL";
+            string sql = "SELECT * FROM [dbo].[Requisicoes] WHERE ID_Exemplar = @id AND DataEntrega IS NULL";
 
             var param = new Dictionary<string, object>
             {
@@ -141,8 +141,8 @@ namespace XPTOBusiness.Repositories
 
                 var param = new Dictionary<string, object>
         {
-            { "@ID_Utilizador", r.IdUtilizador },
-            { "@ID_Exemplar", r.IdExemplar },
+            { "@ID_Utilizador", r.ID_Utilizador },
+            { "@ID_Exemplar", r.ID_Exemplar },
             { "@DataRequisicao", DateTime.Now }, 
             { "@DataEntrega", (object?)r.DataEntrega ?? DBNull.Value }
         };
@@ -253,7 +253,7 @@ namespace XPTOBusiness.Repositories
             string sql = @"
                 SELECT COUNT(1)
                 FROM Requisicoes
-                WHERE IdExemplar = @idExemplar
+                WHERE ID_Exemplar = @idExemplar
                 AND DataEntrega IS NULL";
 
             var param = new Dictionary<string, object>
