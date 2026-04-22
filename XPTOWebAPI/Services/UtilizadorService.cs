@@ -1,4 +1,8 @@
-﻿using XPTOBusiness.Models;
+﻿using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using XPTOBusiness.Models;
 using XPTOBusiness.Repositories;
 
 namespace XPTOWebAPI.Services
@@ -100,6 +104,43 @@ namespace XPTOWebAPI.Services
             }
 
             return count;
+        }
+
+        public Utilizador? Autenticar(string username, string password, string tag)
+        {
+            var user = _utilizadoresRepo.GetAll(tag)
+                .FirstOrDefault(u => u.UserName == username && u.PassWord == password && u.Ativo);
+            return user;
+        }
+
+        public void RegistarUtilizador(Utilizador novoUser, string tag)
+        {
+            novoUser.Ativo = true;
+            _utilizadoresRepo.Insert(novoUser, tag);
+        }
+
+        public string GerarToken(Utilizador user, IConfiguration config)
+        {
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+        new Claim(ClaimTypes.NameIdentifier, user.ID_Utilizador.ToString()),
+        new Claim(ClaimTypes.Name, user.UserName ?? ""),
+        new Claim(ClaimTypes.Email, user.Email ?? ""),
+        new Claim(ClaimTypes.Role, user.ID_TipoUtilizador == 1 ? "Admin" : "User")
+    };
+
+            var token = new JwtSecurityToken(
+                issuer: config["Jwt:Issuer"],
+                audience: config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(3),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
     }

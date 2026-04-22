@@ -17,13 +17,11 @@ namespace XPTOBusiness.Services
         {
             private readonly INucleoRepository _nucleoRepo;
             private readonly ITipoNucleoRepository _tipoRepo;
-            private readonly IExemplaresNucleosRepository _exemplaresRepos;
 
-            public NucleoService(INucleoRepository nucleoRepo, ITipoNucleoRepository tipoRepo, IExemplaresNucleosRepository exemplaresRepos)
+            public NucleoService(INucleoRepository nucleoRepo, ITipoNucleoRepository tipoRepo)
             {
                 _nucleoRepo = nucleoRepo;
                 _tipoRepo = tipoRepo;
-                _exemplaresRepos = exemplaresRepos;
             }
 
             public IEnumerable<NucleoDTO> ObterTodos()
@@ -40,12 +38,12 @@ namespace XPTOBusiness.Services
             }
 
             //pontos 7 e 9
-            public void TransferirExemplares(TransferenciaExemplaresDTO dados, string tag)
+            public void TransferirExemplares(TransferenciaExemplaresDTO dados)
             {
                 foreach (var idExemplar in dados.IdsExemplares)
                 {
-                    var vinculoAtual = _exemplaresRepos.GetByExemplarId(idExemplar);
-                    var totalNoNucleo = _exemplaresRepos.GetAll(tag)
+                    var vinculoAtual = _exemplaresRepo.GetByExemplarId(idExemplar);
+                    var totalNoNucleo = _exemplaresRepo.GetAll()
                                         .Count(x => x.ID_Nucleo == vinculoAtual.ID_Nucleo);
 
                     if (totalNoNucleo <= 1)

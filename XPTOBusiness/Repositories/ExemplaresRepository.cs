@@ -24,6 +24,9 @@ namespace XPTOBusiness.Repositories
         public ExemplarDTO? GetWithObraAndNucleo(long exemplarId, string tag);
 
         public int CountByObraAndNucleo(long obraId, long nucleoId, string tag);
+
+        public void TransferirExemplar(long idExemplar, int idNovoNucleo);
+        public void AdicionarExemplar(long idObra, int idNucleoInicial);
     }
 
     public class ExemplaresRepository : IExemplaresRepository

@@ -1,9 +1,12 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.SqlServer.Server;
 using System;
 using System.Collections.Generic;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.Intrinsics.X86;
+using System.Text;
 using XPTOBusiness.DTOs;
 using XPTOBusiness.Models;
 using XPTOBusiness.Repositories;
