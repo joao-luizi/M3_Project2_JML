@@ -117,7 +117,7 @@ namespace XPTOBusiness.Repositories
                 DALPro.Commit(trans);
             }
             catch
-            {
+    {
                 if (trans != null)
                     DALPro.Rollback(trans);
                 throw;
@@ -166,9 +166,9 @@ namespace XPTOBusiness.Repositories
             WHERE E.ID_Exemplar = @idExemplar";
 
             var param = new Dictionary<string, object>
-            {
+        {
                 { "@idExemplar", exemplarId }
-            };
+        };
 
             return DALPro.Query<ExemplarDTO>(sql, param).FirstOrDefault();
 
@@ -187,14 +187,35 @@ namespace XPTOBusiness.Repositories
               AND EN.ID_Nucleo = @nucleoId";
 
             var param = new Dictionary<string, object>
-            {
+        {
                 { "@obraId", obraId },
                 { "@nucleoId", nucleoId }
-            };
+        };
 
             object result = DALPro.ExecuteScalar(sql, param);
 
             return result != null ? Convert.ToInt32(result) : 0;
+        }
+
+        public void TransferirExemplar(long idExemplar, int idNovoNucleo)
+        {
+            var p = new Dictionary<string, object>
+            {
+                { "@ID_Exemplar", idExemplar },
+                { "@ID_Nucleo", idNovoNucleo }
+            };
+            DALPro.ExecuteSP("sp_TransferirExemplar", p);
+        }
+
+        // Atualizar número de exemplares
+        public void AdicionarExemplar(long idObra, int idNucleoInicial)
+        {
+            var p = new Dictionary<string, object>
+            {
+                { "@ID_Obra", idObra },
+                { "@ID_Nucleo", idNucleoInicial }
+            };
+            DALPro.ExecuteSP("sp_AdicionarExemplar", p);
         }
     }
 }

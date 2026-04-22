@@ -9,8 +9,8 @@ namespace XPTOBusiness.Models
     public class Nucleo
     {
         public int ID_Nucleo { get; set; }
-        public string Nome { get; set; }
-        public string Local { get; set; }
+        public string? Nome { get; set; }
+        public string? Local { get; set; }
         public byte ID_TipoNucleo { get; set; }
 
     }

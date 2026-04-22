@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.SqlServer.Server;
+using System;
+using System.Collections.Generic;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.Intrinsics.X86;
 using XPTOBusiness.DTOs;
@@ -16,7 +18,7 @@ namespace XPTOWebAPI
     {
         public static void Main(string[] args)
         {
-var builder = WebApplication.CreateBuilder(args);
+            var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers();
             // Add services to the container.
             builder.Services.AddCors(options =>
@@ -31,11 +33,19 @@ var builder = WebApplication.CreateBuilder(args);
                     });
             });
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen(options => options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-            {
-                Title = "jwtToken",
-                Version = "v1"
-            }));
+            builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+             .AddJwtBearer(options => {
+                 options.TokenValidationParameters = new TokenValidationParameters
+                 {
+                     ValidateIssuer = true,
+                     ValidateAudience = true,
+                     ValidateLifetime = true,
+                     ValidateIssuerSigningKey = true,
+                     ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                     ValidAudience = builder.Configuration["Jwt:Audience"],
+                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+                 };
+             });
             builder.Services.AddScoped<IUtilizadorService, UtilizadorService>();
             builder.Services.AddScoped<IRequisicaoService, RequisicaoService>();
             builder.Services.AddScoped<IExemplaresRepository, ExemplaresRepository>();
@@ -43,6 +53,11 @@ var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddScoped<IRequisicoesRepository, RequisicoesRepository>();
             builder.Services.AddScoped<ITipoUtilizadoresRepository, TipoUtilizadoresRepository>();
             builder.Services.AddScoped<IUtilizadoresRepository, UtilizadoresRepository>();
+            builder.Services.AddScoped<INucleoRepository, NucleoRepository>();
+            builder.Services.AddScoped<ITipoNucleoRepository, TipoNucleoRepository>();
+            builder.Services.AddScoped<IExemplaresNucleosRepository, ExemplaresNucleosRepository>();
+            builder.Services.AddScoped<NucleoService>();
+            builder.Services.AddScoped<UtilizadorService>();
             builder.Services.AddAuthorization();
 
 
@@ -53,23 +68,25 @@ var builder = WebApplication.CreateBuilder(args);
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
+
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
             //5, 6, 10, 11, 12, 14, 15
-            //5.Cada leitor pode ter requisitados, no máximo, quatro exemplares
-            //14.Os leitores deverão ter a possibilidade de proceder a requisições e
-            //devoluções, dentro das normas da biblioteca
+            //5.Cada leitor pode ter requisitados, no mÃ¡ximo, quatro exemplares
+            //14.Os leitores deverÃ£o ter a possibilidade de proceder a requisiÃ§Ãµes e
+            //devoluÃ§Ãµes, dentro das normas da biblioteca
             app.MapPost("/requisitar", (RequisicaoDTO dto, IRequisicaoService service) =>
             {
                 try
                 {
                     service.RequestExemplar(dto.IdUtilizador, dto.IdExemplar, "XPTOConn");
 
-                    return Results.Ok(new { message = "Requisição efetuada com sucesso." });
+                    return Results.Ok(new { message = "RequisiÃ§Ã£o efetuada com sucesso." });
                 }
                 catch (Exception ex)
                 {
@@ -77,11 +94,11 @@ var builder = WebApplication.CreateBuilder(args);
                 }
             });
 
-            //6.O tempo máximo para devolução, de cada exemplar, é de quinze dias
-            //10.Deve ser possivel suspender o acesso de requisições a leitores que 
-            //tenham procedido a devoluções atrasadas em mais que três ocasiões
-            //14.Os leitores deverão ter a possibilidade de proceder a requisições e
-            //devoluções, dentro das normas da biblioteca
+            //6.O tempo mÃ¡ximo para devoluÃ§Ã£o, de cada exemplar, Ã© de quinze dias
+            //10.Deve ser possivel suspender o acesso de requisiÃ§Ãµes a leitores que 
+            //tenham procedido a devoluÃ§Ãµes atrasadas em mais que trÃªs ocasiÃµes
+            //14.Os leitores deverÃ£o ter a possibilidade de proceder a requisiÃ§Ãµes e
+            //devoluÃ§Ãµes, dentro das normas da biblioteca
             app.MapPost("/devolver", (RequisicaoDTO dto, IRequisicaoService service) =>
             {
                 try
@@ -90,7 +107,7 @@ var builder = WebApplication.CreateBuilder(args);
 
                     return Results.Ok(new
                     {
-                        message = "Devolução efetuada com sucesso."
+                        message = "DevoluÃ§Ã£o efetuada com sucesso."
                     });
                 }
                 catch (Exception ex)
@@ -117,9 +134,22 @@ var builder = WebApplication.CreateBuilder(args);
                 }
             });
 
-            //15.Deve ser permitido ao leitor cancelar a respetiva inscrição, devendo
-            //assumir - se que, nesse caso, é feita a devolução de todos os exemplares
-            //que possa ter requisitado e não tenha ainda devolvido
+            //LOGIN
+            app.MapPost("/api/auth/login", (string user, string pass, UtilizadorService service, IConfiguration config) => {
+                var u = service.Autenticar(user, pass);
+                if (u == null) return Results.Unauthorized();
+
+                var token = service.GerarToken(u, config);
+                return Results.Ok(new
+                {
+                    Token = token,
+                    Utilizador = u.Nome,
+                    Perfil = u.ID_TipoUtilizador == 1 ? "Admin" : "Leitor"
+                });
+            });
+            //15.Deve ser permitido ao leitor cancelar a respetiva inscriÃ§Ã£o, devendo
+            //assumir - se que, nesse caso, Ã© feita a devoluÃ§Ã£o de todos os exemplares
+            //que possa ter requisitado e nÃ£o tenha ainda devolvido
             app.MapPost("/cancel", (long id, IUtilizadorService service) => 
             {
                 try
@@ -128,7 +158,7 @@ var builder = WebApplication.CreateBuilder(args);
 
                     return Results.Ok(new
                     {
-                        message = "Inscrição Cancelada."
+                        message = "InscriÃ§Ã£o Cancelada."
                     });
                 }
                 catch (Exception ex)
@@ -137,8 +167,8 @@ var builder = WebApplication.CreateBuilder(args);
                 }
             });
 
-            //12.Deve ser possivel eliminar leitores que estejam há mais de um ano sem
-            //fazer qualquer requisição, desde que não tenham nenhuma requisição
+            //12.Deve ser possivel eliminar leitores que estejam hÃ¡ mais de um ano sem
+            //fazer qualquer requisiÃ§Ã£o, desde que nÃ£o tenham nenhuma requisiÃ§Ã£o
             //ativa nesse momento
             app.MapPost("/deleteinactive", (IUtilizadorService service) =>
             {
@@ -160,6 +190,47 @@ var builder = WebApplication.CreateBuilder(args);
                     return Results.BadRequest(new { error = ex.Message });
                 }
             });
+
+            //NUCLEOS
+            var nucleosGroup = app.MapGroup("/api/nucleos");
+
+            nucleosGroup.MapGet("/", (NucleoService service) =>
+                Results.Ok(service.ObterTodos()))
+                .WithName("GetNucleos")
+                .Produces<List<NucleoDTO>>(StatusCodes.Status200OK);
+
+            nucleosGroup.MapGet("/relatorio-requisicoes", (DateTime inicio, DateTime fim, NucleoService service) =>
+                Results.Ok(service.ObterResumoRequisicoes(inicio, fim)))
+                .WithName("GetRelatorioRequisicoes");
+
+            nucleosGroup.MapGet("/disponibilidade", (bool porAssunto, NucleoService service) =>
+                Results.Ok(service.ObterDisponibilidade(porAssunto)))
+                .WithName("GetDisponibilidade");
+
+            nucleosGroup.MapPost("/", (SaveNucleoDTO dto, NucleoService service) =>
+            {
+                service.CriarNucleo(dto);
+                return Results.Created($"/api/nucleos", dto);
+            })
+            .RequireAuthorization(policy => policy.RequireRole("Admin"))
+            .WithName("CreateNucleo");
+
+            nucleosGroup.MapPost("/transferencia", (TransferenciaExemplaresDTO dados, NucleoService service) =>
+            {
+                service.TransferirExemplares(dados);
+                return Results.Ok(new { message = "TransferÃªncia concluÃ­da com sucesso." });
+            })
+            .RequireAuthorization(policy => policy.RequireRole("Admin"))
+            .WithName("TransferirExemplares");
+
+            //ponto 13
+            nucleosGroup.MapGet("/dashboard", (NucleoService service) =>
+            {
+                var dados = service.ObterDadosDecisao();
+                return Results.Ok(dados);
+            })
+            .RequireAuthorization(policy => policy.RequireRole("Admin"))
+            .WithName("GetAnaliseDecisao");
             app.Run();
         }
     }
