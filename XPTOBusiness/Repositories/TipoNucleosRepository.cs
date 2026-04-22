@@ -13,14 +13,14 @@ namespace XPTOBusiness.Repositories
     {
         public IEnumerable<TipoNucleo> GetAll()
         {
-            string sql = "SELECT * FROM Tipo_Nucleos";
+            string sql = "SELECT * FROM TipoNucleos";
             var lista = DALPro.Query<TipoNucleo>(sql);
             return lista;
         }
 
         public TipoNucleo? GetById(byte id)
         {
-            string sql = "SELECT * FROM Tipo_Nucleos WHERE ID_Tipo_Nucleo = @id";
+            string sql = "SELECT * FROM Tipo_Nucleos WHERE ID_TipoNucleo = @id";
             var p = new Dictionary<string, object> { { "@id", id } };
             var lista = DALPro.Query<TipoNucleo>(sql, parameters: p);
             return lista.FirstOrDefault();
@@ -28,21 +28,21 @@ namespace XPTOBusiness.Repositories
 
         public void Add(TipoNucleo tipo)
         {
-            string sql = "INSERT INTO Tipo_Nucleos (Descricao) VALUES (@desc)";
+            string sql = "INSERT INTO TipoNucleos (Descricao) VALUES (@desc)";
             var p = new Dictionary<string, object> { { "@desc", tipo.Descricao } };
             DALPro.Execute(sql, parameters: p);
         }
 
         public void Update(TipoNucleo tipo)
         {
-            string sql = "UPDATE Tipo_Nucleos SET Descricao = @desc WHERE ID_Tipo_Nucleo = @id";
+            string sql = "UPDATE TipoNucleos SET Descricao = @desc WHERE ID_TipoNucleo = @id";
             var p = new Dictionary<string, object> { { "@desc", tipo.Descricao }, { "@id", tipo.ID_TipoNucleo } };
             DALPro.Execute(sql, parameters: p);
         }
 
         public void Delete(byte id)
         {
-            string sql = "DELETE FROM Tipo_Nucleos WHERE ID_Tipo_Nucleo = @id";
+            string sql = "DELETE FROM TipoNucleos WHERE ID_TipoNucleo = @id";
             var p = new Dictionary<string, object> { { "@id", id } };
             DALPro.Execute(sql, parameters: p);
         }

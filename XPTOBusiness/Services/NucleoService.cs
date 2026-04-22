@@ -37,11 +37,25 @@ namespace XPTOBusiness.Services
                 ));
             }
 
-            public void TransferirExemplares(TransferenciaExemplaresDTO dados)
-            {
-                string listaCsv = string.Join(",", dados.IdsExemplares);
-                _nucleoRepo.TransferirExemplares(listaCsv, dados.IdNucleoDestino);
-            }
+            //pontos 7 e 9
+            //public void TransferirExemplares(TransferenciaExemplaresDTO dados)
+            //{
+            //    foreach (var idExemplar in dados.IdsExemplares)
+            //    {
+            //        var vinculoAtual = _exemplaresRepo.GetByExemplarId(idExemplar);
+            //        var totalNoNucleo = _exemplaresRepo.GetAll()
+            //                            .Count(x => x.ID_Nucleo == vinculoAtual.ID_Nucleo);
+
+            //        if (totalNoNucleo <= 1)
+            //        {
+            //            throw new Exception($"Transferência negada: O núcleo {vinculoAtual.ID_Nucleo} " +
+            //                                "não pode ficar com menos de 1 exemplar para consulta.");
+            //        }
+            //    }
+
+            //    string listaCsv = string.Join(",", dados.IdsExemplares);
+            //    _nucleoRepo.TransferirExemplares(listaCsv, dados.IdNucleoDestino);
+            //}
 
             public IEnumerable<ResumoRequisicoesDTO> ObterResumoRequisicoes(DateTime inicio, DateTime fim)
             {
@@ -92,6 +106,19 @@ namespace XPTOBusiness.Services
                     ID_TipoNucleo = dto.IdTipoNucleo
                 };
                 _nucleoRepo.Add(model);
+            }
+
+            //ponto 13
+            public dynamic ObterDadosDecisao()
+            {
+                var disponibilidade = ObterDisponibilidade(false);
+
+                return new
+                {
+                    NucleosParaReforco = disponibilidade.Where(d => d.DisponiveisParaRequisicao < 2),
+                    NucleosCandidatosEncerramento = disponibilidade.Where(d => d.Total < 5),
+                    SugestoesLeitura = _nucleoRepo.GetRequisicoesPorPeriodo(DateTime.Now.AddMonths(-1), DateTime.Now)
+                };
             }
         }
     }

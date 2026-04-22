@@ -13,7 +13,7 @@ namespace XPTOBusiness.Repositories
     {
         public void Add(Nucleo nucleo)
         {
-            string sql = "INSERT INTO Nucleos (Nome, Local, ID_Tipo_Nucleo) VALUES (@nome, @local, @tipo)";
+            string sql = "INSERT INTO Nucleos (Nome, Local, ID_TipoNucleo) VALUES (@nome, @local, @tipo)";
             var p = new Dictionary<string, object> {
                 { "@nome", nucleo.Nome },
                 { "@local", nucleo.Local },
@@ -24,7 +24,7 @@ namespace XPTOBusiness.Repositories
 
         public void Update(Nucleo nucleo)
         {
-            string sql = "UPDATE Nucleos SET Nome=@nome, Local=@local, ID_Tipo_Nucleo=@tipo WHERE ID_Nucleo=@id";
+            string sql = "UPDATE Nucleos SET Nome=@nome, Local=@local, ID_TipoNucleo=@tipo WHERE ID_Nucleo=@id";
             var p = new Dictionary<string, object> {
                 { "@id", nucleo.ID_Nucleo },
                 { "@nome", nucleo.Nome },
@@ -69,7 +69,12 @@ namespace XPTOBusiness.Repositories
             return DALPro.ExecuteSP("Disponibilidade_Exemplares_NucleoAssunto");
         }
 
-        public IEnumerable<Nucleo> GetAll() { return new List<Nucleo>(); }
+        public IEnumerable<Nucleo> GetAll()
+        {
+            string sql = "SELECT * FROM Nucleos";
+            var lista = DALPro.Query<Nucleo>(sql);
+            return lista;
+        }
         public Nucleo GetById(int id) { return null; }
     }
 }
