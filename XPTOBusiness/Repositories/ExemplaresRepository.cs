@@ -216,9 +216,10 @@ namespace XPTOBusiness.Repositories
             var p = new Dictionary<string, object>
             {
                 { "@ID_Obra", idObra },
-                { "@ID_Nucleo", idNucleoInicial }
+                { "@ID_Nucleo", idNucleoInicial },
+                { "@Quantidade", 1 }
             };
-            DALPro.ExecuteSP("sp_AdicionarExemplar", p);
+            DALPro.ExecuteSP("Obras_AdicionarExemplares", p);
         }
     }
 }

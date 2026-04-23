@@ -55,7 +55,7 @@ namespace XPTOBusiness.Repositories
 
         public int Insert(TipoUtilizador tu, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             SqlTransaction? trans = null;
             try
             {
@@ -84,7 +84,7 @@ namespace XPTOBusiness.Repositories
 
         public void Update(TipoUtilizador tu, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             SqlTransaction? trans = null;
             try
             {
@@ -111,7 +111,7 @@ namespace XPTOBusiness.Repositories
 
         public void Delete(int id, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             SqlTransaction? trans = null;
             try
             {

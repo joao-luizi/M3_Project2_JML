@@ -12,4 +12,6 @@ namespace XPTOBusiness.DTOs
         public long ID_Obra { get; set; }
         public long ID_Nucleo { get; set; }
     }
+
+   
 }

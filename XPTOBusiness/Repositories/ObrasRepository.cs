@@ -42,24 +42,44 @@ namespace XPTOBusiness.Repositories
             return DALPro.Query<ObraDTO>("EXEC sp_Obras_Search @Termo", new() { { "@Termo", termo ?? "" } });
         }
 
-        public void CreateUpdate(ObraDTO obra, string tag)
+
+        public void CreateUpdate(ObraDTO obra)
         {
-            DALPro.ConnectionString = GetConnectionsString(tag);
-            DALPro.Execute("EXEC sp_Obras_Upsert @ID_Obra, @Titulo, @Autor, @ISBN, @Capa, @ID_Assunto", new() {
-            { "@ID_Obra", obra.ID_Obra },
-            { "@Titulo", obra.Titulo },
-            { "@Autor", obra.Autor },
-            { "@ISBN", obra.ISBN },
-            { "@Capa", obra.Capa ?? (object)DBNull.Value },
-            { "@ID_Assunto", obra.ID_Assunto }
-            });
+            // Se o ID_Obra for nulo ou 0, é um CREATE (Inserir Nova)
+            if (obra.ID_Obra == null || obra.ID_Obra == 0)
+            {
+                string sql = "EXEC Obras_InserirNova @Autor, @ISBN, @Titulo, @ID_Assunto";
+                var p = new Dictionary<string, object> {
+                    { "@Autor", obra.Autor ?? "" },
+                    { "@ISBN", obra.ISBN ?? "" },
+                    { "@Titulo", obra.Titulo ?? "" },
+                    { "@ID_Assunto", obra.ID_Assunto },
+                    { "@Capa", obra.Capa ?? (object)DBNull.Value }
+                };
+                DALPro.ExecuteSP(sql, p);
+            }
+            else
+            {
+                string sql = "EXEC Obras_Atualizar @ID_Obra, @Autor, @ISBN, @Titulo, @ID_Assunto, @Capa";
+                var p = new Dictionary<string, object> {
+                    { "@ID_Obra", obra.ID_Obra },
+                    { "@Autor", obra.Autor ?? "" },
+                    { "@ISBN", obra.ISBN ?? "" },
+                    { "@Titulo", obra.Titulo ?? "" },
+                    { "@ID_Assunto", obra.ID_Assunto },
+                    { "@Capa", obra.Capa ?? (object)DBNull.Value }
+                };
+                DALPro.ExecuteSP(sql, p);
+            }
         }
 
-        public void Delete(long id, string tag)
+        public void Delete(long id)
         {
-            DALPro.ConnectionString = GetConnectionsString(tag);
-            DALPro.Execute("EXEC sp_Obras_Delete @ID_Obra", new() { { "@ID_Obra", id } });
+            string sql = "EXEC Obras_Remover @ID_Obra";
+            var p = new Dictionary<string, object> { { "@ID_Obra", id } };
+
+            DALPro.ExecuteSP(sql, p);
         }
-       
+
     }
 }

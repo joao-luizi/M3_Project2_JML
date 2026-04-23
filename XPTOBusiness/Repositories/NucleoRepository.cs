@@ -8,6 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using XPTOBusiness.Models;
+using Microsoft.Data.SqlClient;
+using DalPro;
+using System.Data;
 
 namespace XPTOBusiness.Repositories
 {
