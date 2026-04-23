@@ -15,10 +15,10 @@ namespace XPTOBusiness.Repositories
 
     public interface IExemplaresRepository
     {
-        public List<Exemplar> GetAll(string tag);
-        public Exemplar GetById(long id, string tag);
-        public long Insert(Exemplar e, string tag);
-        public void Update(Exemplar e, string tag);
+        public List<Exemplares> GetAll(string tag);
+        public Exemplares GetById(long id, string tag);
+        public long Insert(Exemplares e, string tag);
+        public void Update(Exemplares e, string tag);
         public void Delete(long id, string tag);
 
         public ExemplarDTO? GetWithObraAndNucleo(long exemplarId, string tag);
@@ -42,15 +42,15 @@ namespace XPTOBusiness.Repositories
             var connectionString = _configuration.GetConnectionString(tag) ?? throw new Exception($"Connection string for tag: {tag} not found!");
             return connectionString;
         }
-        public List<Exemplar> GetAll(string tag)
+        public List<Exemplares> GetAll(string tag)
         {
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = "SELECT * FROM [dbo].[Exemplares]";
 
-            return DALPro.Query<Exemplar>(sql);
+            return DALPro.Query<Exemplares>(sql);
         }
 
-        public Exemplar GetById(long id, string tag)
+        public Exemplares GetById(long id, string tag)
         {
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = "SELECT * FROM [dbo].[Exemplares] WHERE ID_Exemplar = @id";
@@ -60,10 +60,10 @@ namespace XPTOBusiness.Repositories
                 {"@id", id}
             };
 
-            return DALPro.Query<Exemplar>(sql, param).FirstOrDefault();
+            return DALPro.Query<Exemplares>(sql, param).FirstOrDefault();
         }
 
-        public long Insert(Exemplar e, string tag)
+        public long Insert(Exemplares e, string tag)
         {
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
             SqlTransaction? trans = null;
@@ -96,7 +96,7 @@ namespace XPTOBusiness.Repositories
             }
         }
 
-        public void Update(Exemplar e, string tag)
+        public void Update(Exemplares e, string tag)
         {
             DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
             SqlTransaction? trans = null;

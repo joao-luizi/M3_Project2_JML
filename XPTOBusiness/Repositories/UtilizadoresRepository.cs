@@ -36,28 +36,25 @@ namespace XPTOBusiness.Repositories
         }
         public List<Utilizador> GetAll(string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = "SELECT * FROM [dbo].[Utilizadores]";
-
             return DALPro.Query<Utilizador>(sql);
         }
 
         public Utilizador GetById(long id, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = "SELECT * FROM [dbo].[Utilizadores] WHERE ID_Utilizador = @id";
-
             var param = new Dictionary<string, object>
-        {
-            {"@id", id}
-        };
-
+            {
+                {"@id", id}
+            };
             return DALPro.Query<Utilizador>(sql, param).FirstOrDefault();
         }
 
         public long Insert(Utilizador u, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             SqlTransaction? trans = null;
             try
             {
@@ -94,7 +91,7 @@ namespace XPTOBusiness.Repositories
 
         public void Update(Utilizador u, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             SqlTransaction? trans = null;
             try
             {
@@ -133,7 +130,7 @@ namespace XPTOBusiness.Repositories
 
         public void Delete(long id, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             SqlTransaction? trans = null;
             try
             {
@@ -158,8 +155,7 @@ namespace XPTOBusiness.Repositories
 
         public List<Requisicao> GetInactiveUsersEligibleForDeletion(string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
-
+            DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = @"
             SELECT R.[ID_Utilizador]
             FROM Requisicoes R
@@ -177,12 +173,9 @@ namespace XPTOBusiness.Repositories
         public void DeleteUserById(long id, string tag)
         {
             DALPro.ConnectionString = GetConnectionsString(tag);
-
             using var conn = new SqlConnection(DALPro.ConnectionString);
             conn.Open();
-
             using var trans = conn.BeginTransaction();
-
             try
             {
                 string sql = @"

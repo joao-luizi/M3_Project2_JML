@@ -10,7 +10,7 @@ namespace XPTOBusiness.DTOs
     {
         public string Titulo { get; set; }
         public string Nucleo { get; set; }
-        public string DataLimite { get; set; }
+        public DateTime DataLimite { get; set; }
         public string Status { get; set; }
     }
 }

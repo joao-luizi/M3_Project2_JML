@@ -8,15 +8,21 @@ using XPTOBusiness.Repositories;
 
 namespace XPTOBusiness.Services
 {
+    public interface IBibliotecaService
+    {
+        public List<SituacaoLeitorDTO> ObterSituacaoLeitor(int userId, string tag);
+
+
+    }
     public class BibliotecaService : IBibliotecaService
     {
         private readonly ILeitorRepository _leitorRepo;
 
         public BibliotecaService(ILeitorRepository leitorRepo) => _leitorRepo = leitorRepo;
 
-        public List<SituacaoLeitorDTO> ObterSituacaoLeitor(int userId)
+        public List<SituacaoLeitorDTO> ObterSituacaoLeitor(int userId, string tag)
         {
-            var dados = _leitorRepo.GetSituacaoAtiva(userId);
+            var dados = _leitorRepo.GetSituacaoAtiva(userId, tag);
             var agora = DateTime.Now;
 
             return dados.Select(d =>

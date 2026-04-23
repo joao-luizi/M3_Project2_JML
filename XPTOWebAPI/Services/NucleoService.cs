@@ -13,7 +13,15 @@ namespace XPTOBusiness.Services
 
     namespace XPTOBusiness.Services
     {
-        public class NucleoService
+        public interface INucleoService
+        {
+            public IEnumerable<NucleoDTO> ObterTodos();
+            public void TransferirExemplares(TransferenciaExemplaresDTO dados);
+            public IEnumerable<ResumoRequisicoesDTO> ObterResumoRequisicoes(DateTime inicio, DateTime fim);
+            public IEnumerable<DisponibilidadeDTO> ObterDisponibilidade(bool porAssunto);
+        }
+
+        public class NucleoService : INucleoService
         {
             private readonly INucleoRepository _nucleoRepo;
             private readonly ITipoNucleoRepository _tipoRepo;
@@ -24,10 +32,10 @@ namespace XPTOBusiness.Services
                 _tipoRepo = tipoRepo;
             }
 
-            public IEnumerable<NucleoDTO> ObterTodos()
+            public IEnumerable<NucleoDTO> ObterTodos(string tag)
             {
-                var nucleos = _nucleoRepo.GetAll();
-                var tipos = _tipoRepo.GetAll();
+                var nucleos = _nucleoRepo.GetAll(tag);
+                var tipos = _tipoRepo.GetAll(tag);
 
                 return nucleos.Select(n => new NucleoDTO(
                     n.ID_Nucleo,
@@ -38,7 +46,7 @@ namespace XPTOBusiness.Services
             }
 
             //pontos 7 e 9
-            public void TransferirExemplares(TransferenciaExemplaresDTO dados)
+            public void TransferirExemplares(TransferenciaExemplaresDTO dados, string tag)
             {
                 foreach (var idExemplar in dados.IdsExemplares)
                 {
@@ -54,12 +62,12 @@ namespace XPTOBusiness.Services
                 }
 
                 string listaCsv = string.Join(",", dados.IdsExemplares);
-                _nucleoRepo.TransferirExemplares(listaCsv, dados.IdNucleoDestino);
+                _nucleoRepo.TransferirExemplares(listaCsv, dados.IdNucleoDestino, tag);
             }
 
-            public IEnumerable<ResumoRequisicoesDTO> ObterResumoRequisicoes(DateTime inicio, DateTime fim)
+            public IEnumerable<ResumoRequisicoesDTO> ObterResumoRequisicoes(DateTime inicio, DateTime fim, string tag)
             {
-                DataTable dt = _nucleoRepo.GetRequisicoesPorPeriodo(inicio, fim);
+                DataTable dt = _nucleoRepo.GetRequisicoesPorPeriodo(inicio, fim, tag);
                 var lista = new List<ResumoRequisicoesDTO>();
 
                 foreach (DataRow row in dt.Rows)
@@ -73,11 +81,11 @@ namespace XPTOBusiness.Services
                 return lista;
             }
 
-            public IEnumerable<DisponibilidadeDTO> ObterDisponibilidade(bool porAssunto)
+            public IEnumerable<DisponibilidadeDTO> ObterDisponibilidade(bool porAssunto, string tag)
             {
                 DataTable dt = porAssunto
-                    ? _nucleoRepo.GetDisponibilidadePorNucleoeAssunto()
-                    : _nucleoRepo.GetDisponibilidadePorNucleo();
+                    ? _nucleoRepo.GetDisponibilidadePorNucleoeAssunto(tag)
+                    : _nucleoRepo.GetDisponibilidadePorNucleo(tag);
 
                 var lista = new List<DisponibilidadeDTO>();
 
@@ -97,7 +105,7 @@ namespace XPTOBusiness.Services
                 return lista;
             }
 
-            public void CriarNucleo(SaveNucleoDTO dto)
+            public void CriarNucleo(SaveNucleoDTO dto, string tag)
             {
                 var model = new Nucleo
                 {
@@ -105,19 +113,19 @@ namespace XPTOBusiness.Services
                     Local = dto.Local,
                     ID_TipoNucleo = dto.IdTipoNucleo
                 };
-                _nucleoRepo.Add(model);
+                _nucleoRepo.Add(model, tag);
             }
 
             //ponto 13
-            public dynamic ObterDadosDecisao()
+            public dynamic ObterDadosDecisao(string tag)
             {
-                var disponibilidade = ObterDisponibilidade(false);
+                var disponibilidade = ObterDisponibilidade(false, tag);
 
                 return new
                 {
                     NucleosParaReforco = disponibilidade.Where(d => d.DisponiveisParaRequisicao < 2),
                     NucleosCandidatosEncerramento = disponibilidade.Where(d => d.Total < 5),
-                    SugestoesLeitura = _nucleoRepo.GetRequisicoesPorPeriodo(DateTime.Now.AddMonths(-1), DateTime.Now)
+                    SugestoesLeitura = _nucleoRepo.GetRequisicoesPorPeriodo(DateTime.Now.AddMonths(-1), DateTime.Now, tag)
                 };
             }
         }

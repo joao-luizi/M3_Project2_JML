@@ -1,4 +1,6 @@
-﻿using DalPro;
+﻿using Azure;
+using DalPro;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -9,10 +11,35 @@ using XPTOBusiness.Models;
 
 namespace XPTOBusiness.Repositories
 {
+    public interface INucleoRepository
+    {
+        public IEnumerable<Nucleo> GetAll(string tag);
+        public Nucleo GetById(int id, string tag);
+        public void Add(Nucleo nucleo, string tag);
+        public void Update(Nucleo nucleo, string tag);
+        public void Delete(int id, string tag);
+
+        public void TransferirExemplares(string listaIds, long idDestino, string tag);
+        public DataTable GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim, string tag);
+        public DataTable GetDisponibilidadePorNucleo(string tag);
+        public DataTable GetDisponibilidadePorNucleoeAssunto(string tag);
+    }
     public class NucleoRepository : INucleoRepository
     {
-        public void Add(Nucleo nucleo)
+        private readonly IConfiguration _configuration;
+        public NucleoRepository(IConfiguration config)
         {
+            _configuration = config;
+        }
+
+        private string GetConnectionsString(string tag)
+        {
+            var connectionString = _configuration.GetConnectionString(tag) ?? throw new Exception($"Connection string for tag: {tag} not found!");
+            return connectionString;
+        }
+        public void Add(Nucleo nucleo, string tag)
+        {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = "INSERT INTO Nucleos (Nome, Local, ID_TipoNucleo) VALUES (@nome, @local, @tipo)";
             var p = new Dictionary<string, object> {
                 { "@nome", nucleo.Nome },
@@ -22,8 +49,9 @@ namespace XPTOBusiness.Repositories
             DALPro.Execute(sql, parameters: p);
         }
 
-        public void Update(Nucleo nucleo)
+        public void Update(Nucleo nucleo, string tag)
         {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = "UPDATE Nucleos SET Nome=@nome, Local=@local, ID_TipoNucleo=@tipo WHERE ID_Nucleo=@id";
             var p = new Dictionary<string, object> {
                 { "@id", nucleo.ID_Nucleo },
@@ -34,15 +62,17 @@ namespace XPTOBusiness.Repositories
             DALPro.Execute(sql, parameters: p);
         }
 
-        public void Delete(int id)
+        public void Delete(int id, string tag)
         {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = "DELETE FROM Nucleos WHERE ID_Nucleo = @id";
             var p = new Dictionary<string, object> { { "@id", id } };
             DALPro.Execute(sql, parameters: p);
         }
 
-        public void TransferirExemplares(string listaIds, long idDestino)
+        public void TransferirExemplares(string listaIds, long idDestino, string tag)
         {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             var p = new Dictionary<string, object> {
                 { "@ListaIDsExemplares", listaIds },
                 { "@ID_NucleoDestino", idDestino }
@@ -50,8 +80,9 @@ namespace XPTOBusiness.Repositories
             DALPro.ExecuteSP("Nucleos_TransferirExemplares", parameters: p);
         }
 
-        public DataTable GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim)
+        public DataTable GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim, string tag)
         {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             var p = new Dictionary<string, object> {
                 { "@DataInicio", inicio },
                 { "@DataFim", fim }
@@ -59,22 +90,25 @@ namespace XPTOBusiness.Repositories
             return DALPro.ExecuteSP("Nucleos_MostrarRequisicoes", parameters: p);
         }
 
-        public DataTable GetDisponibilidadePorNucleo()
+        public DataTable GetDisponibilidadePorNucleo(string tag)
         {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             return DALPro.ExecuteSP("Disponibilidade_Exemplares_Nucleo");
         }
 
-        public DataTable GetDisponibilidadePorNucleoeAssunto()
+        public DataTable GetDisponibilidadePorNucleoeAssunto(string tag)
         {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             return DALPro.ExecuteSP("Disponibilidade_Exemplares_NucleoAssunto");
         }
 
-        public IEnumerable<Nucleo> GetAll()
+        public IEnumerable<Nucleo> GetAll(string tag)
         {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = "SELECT * FROM Nucleos";
             var lista = DALPro.Query<Nucleo>(sql);
             return lista;
         }
-        public Nucleo GetById(int id) { return null; }
+        public Nucleo GetById(int id, string tag) { return null; }
     }   
 }

@@ -7,11 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Upskill\Modulo3\Exercicios\DalPro\DalPro.csproj" />
+    <Reference Include="DalPro">
+      <HintPath>..\DalPro\bin\Debug\net9.0\DalPro.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

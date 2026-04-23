@@ -10,6 +10,7 @@ using System.Text;
 using XPTOBusiness.DTOs;
 using XPTOBusiness.Models;
 using XPTOBusiness.Repositories;
+using XPTOBusiness.Services.XPTOBusiness.Services;
 using XPTOWebAPI.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -59,8 +60,11 @@ namespace XPTOWebAPI
             builder.Services.AddScoped<INucleoRepository, NucleoRepository>();
             builder.Services.AddScoped<ITipoNucleoRepository, TipoNucleoRepository>();
             builder.Services.AddScoped<IExemplaresNucleosRepository, ExemplaresNucleosRepository>();
+
             builder.Services.AddScoped<NucleoService>();
             builder.Services.AddScoped<UtilizadorService>();
+
+
             builder.Services.AddAuthorization();
 
 
@@ -79,6 +83,9 @@ namespace XPTOWebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
+
+
+
             //5, 6, 10, 11, 12, 14, 15
             //5.Cada leitor pode ter requisitados, no máximo, quatro exemplares
             //14.Os leitores deverão ter a possibilidade de proceder a requisições e
@@ -139,7 +146,7 @@ namespace XPTOWebAPI
 
             //LOGIN
             app.MapPost("/api/auth/login", (string user, string pass, UtilizadorService service, IConfiguration config) => {
-                var u = service.Autenticar(user, pass);
+                var u = service.Autenticar(user, pass, "XPTOConn");
                 if (u == null) return Results.Unauthorized();
 
                 var token = service.GerarToken(u, config);
@@ -197,13 +204,13 @@ namespace XPTOWebAPI
             //NUCLEOS
             var nucleosGroup = app.MapGroup("/api/nucleos");
 
-            nucleosGroup.MapGet("/", (NucleoService service) =>
+            nucleosGroup.MapGet("/", (NucleoService service, string tag) =>
                 Results.Ok(service.ObterTodos()))
                 .WithName("GetNucleos")
                 .Produces<List<NucleoDTO>>(StatusCodes.Status200OK);
 
-            nucleosGroup.MapGet("/relatorio-requisicoes", (DateTime inicio, DateTime fim, NucleoService service) =>
-                Results.Ok(service.ObterResumoRequisicoes(inicio, fim)))
+            nucleosGroup.MapGet("/relatorio-requisicoes", (DateTime inicio, DateTime fim, NucleoService service, string tag) =>
+                Results.Ok(service.ObterResumoRequisicoes(inicio, fim, tag)))
                 .WithName("GetRelatorioRequisicoes");
 
             nucleosGroup.MapGet("/disponibilidade", (bool porAssunto, NucleoService service) =>
