@@ -10,7 +10,7 @@ using XPTOBusiness.Models;
 
 namespace XPTOBusiness.Repositories
 {
-    public  class TipoUtilizadoresRepositories : ITipoUtilizadoresRepositories
+    public class TipoUtilizadoresRepositories : ITipoUtilizadoresRepositories
     {
         private readonly IConfiguration _configuration;
         public TipoUtilizadoresRepositories(IConfiguration config)
@@ -25,7 +25,7 @@ namespace XPTOBusiness.Repositories
         }
         public List<TipoUtilizador> GetAll(string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = "SELECT * FROM Products";
 
             return DALPro.Query<TipoUtilizador>(sql);
@@ -33,7 +33,7 @@ namespace XPTOBusiness.Repositories
 
         public TipoUtilizador GetById(int id, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = "SELECT * FROM  WHERE =@id";
 
             var param = new Dictionary<string, object>
@@ -46,7 +46,7 @@ namespace XPTOBusiness.Repositories
 
         public int Insert(TipoUtilizador tu, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             SqlTransaction? trans = null;
             try
             {
@@ -80,7 +80,7 @@ namespace XPTOBusiness.Repositories
 
         public void Update(TipoUtilizador tu, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             SqlTransaction? trans = null;
             try
             {
@@ -109,7 +109,7 @@ namespace XPTOBusiness.Repositories
 
         public void Delete(int id, string tag)
         {
-            DalPro.DALPro.ConnectionString = GetConnectionsString(tag);
+            DALPro.ConnectionString = GetConnectionsString(tag);
             SqlTransaction? trans = null;
             try
             {

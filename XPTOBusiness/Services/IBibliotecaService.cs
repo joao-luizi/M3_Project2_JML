@@ -10,7 +10,11 @@ namespace XPTOBusiness.Services
     public interface IBibliotecaService
     {
         public List<SituacaoLeitorDTO> ObterSituacaoLeitor(int userId);
-
-
+        public List<HistoricoLeitorDTO> ObterHistoricoLeitor(int userId, int? nucleoId, DateTime? inicio, DateTime? fim);
+        public List<ObraDTO> PesquisarObras(string termo);
+        public void GuardarObra(ObraDTO obra);
+        public void EliminarObra(long id);
+        public void TransferirExemplar(long idExemplar, int idNovoNucleo);
+        public void AdicionarExemplar(long idObra, int idNucleo);
     }
 }

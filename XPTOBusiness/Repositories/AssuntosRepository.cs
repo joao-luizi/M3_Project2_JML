@@ -23,14 +23,14 @@ namespace XPTOBusiness.Repositories
             return DALPro.Query<AssuntoDTO>(sql, par).FirstOrDefault();
         }
 
-        public void Add(AssuntoCreateDTO assunto)
+        public void Add(AssuntoDTO assunto)
         {
             string sql = "INSERT INTO Assuntos (Assunto) VALUES (@Assunto)";
             var par = new Dictionary<string, object> { { "@Assunto", assunto.Assunto ?? "" } };
             DALPro.Execute(sql, par);
         }
 
-        public void Update(AssuntoUpdateDTO assunto)
+        public void Update(AssuntoDTO assunto)
         {
             string sql = "UPDATE Assuntos SET Assunto = @Assunto WHERE ID_Assunto = @id";
             var par = new Dictionary<string, object> {

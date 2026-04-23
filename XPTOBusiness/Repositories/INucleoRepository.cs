@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -17,7 +18,5 @@ namespace XPTOBusiness.Repositories
 
         void TransferirExemplares(string listaIds, long idDestino);
         DataTable GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim);
-        DataTable GetDisponibilidadePorNucleo();
-        DataTable GetDisponibilidadePorNucleoeAssunto();
     }
 }

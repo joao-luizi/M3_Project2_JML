@@ -12,8 +12,8 @@ namespace XPTOBusiness.Repositories
     {
         IEnumerable<AssuntoDTO> GetAll();
         AssuntoDTO GetById(byte id);
-        void Add(AssuntoCreateDTO assunto);
-        void Update(AssuntoUpdateDTO assunto);
+        void Add(AssuntoDTO assunto);
+        void Update(AssuntoDTO assunto);
         void Delete(byte id);
     }
 }

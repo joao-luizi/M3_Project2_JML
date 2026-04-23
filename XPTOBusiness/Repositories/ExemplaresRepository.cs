@@ -13,22 +13,22 @@ namespace XPTOBusiness.Repositories
         public void TransferirExemplar(long idExemplar, int idNovoNucleo)
         {
             var p = new Dictionary<string, object>
-        {
-            { "@ID_Exemplar", idExemplar },
-            { "@ID_Nucleo", idNovoNucleo }
-        };
-            DALPro.ExecuteSP("sp_TransferirExemplar", p);
+            {
+                { "@ListaIDsExemplares", idExemplar.ToString() },
+                { "@ID_NucleoDestino", idNovoNucleo }
+            };
+            DALPro.ExecuteSP("Nucleos_TransferirExemplares", p);
         }
 
-        // Atualizar número de exemplares
         public void AdicionarExemplar(long idObra, int idNucleoInicial)
         {
             var p = new Dictionary<string, object>
-        {
-            { "@ID_Obra", idObra },
-            { "@ID_Nucleo", idNucleoInicial }
-        };
-            DALPro.ExecuteSP("sp_AdicionarExemplar", p);
+            {
+                { "@ID_Obra", idObra },
+                { "@ID_Nucleo", idNucleoInicial },
+                { "@Quantidade", 1 }
+            };
+            DALPro.ExecuteSP("Obras_AdicionarExemplares", p);
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using DalPro;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,19 +12,47 @@ namespace XPTOBusiness.Repositories
 {
     public class LeitorRepository : ILeitorRepository
     {
-        public List<SituacaoLeitorDTO> GetSituacaoAtiva(int userId) =>
-            DALPro.Query<SituacaoLeitorDTO>("EXEC sp_Leitor_Situacao @ID_Utilizador", new() { { "@ID_Utilizador", userId } });
+        public List<SituacaoLeitorDTO> GetSituacaoAtiva(int userId)
+        {
+            var parametros = new Dictionary<string, object> { { "@ID_Utilizador", userId } };
+            DataTable dt = DALPro.ExecuteSP("Utilizador_ConsultarEstadoRequisicoes", parametros);
+
+            var lista = new List<SituacaoLeitorDTO>();
+            foreach (DataRow row in dt.Rows)
+            {
+                lista.Add(new SituacaoLeitorDTO
+                {
+                    Titulo = row["Titulo"].ToString()!,
+                    Nucleo = row["Nome"].ToString()!,
+                    DataEntrega = Convert.ToDateTime(row["Data Limite"]).ToString("yyyy-MM-dd"),
+                    Status = row["Situacao"].ToString()!
+                });
+            }
+            return lista;
+        }
 
         public List<HistoricoLeitorDTO> GetHistorico(int userId, int? nucleoId, DateTime? inicio, DateTime? fim)
         {
-            // Exemplo de Query direta se preferir não criar SP para filtros dinâmicos complexos
-            string sql = "SELECT O.Titulo, TN.Descricao as Nucleo, R.DataRequisicao, R.DataEntrega FROM Requisicoes R " +
-                         "JOIN Exemplares E ON R.ID_Exemplar = E.ID_Exemplar " +
-                         "JOIN Obras O ON E.ID_Obra = O.ID_Obra " +
-                         "JOIN TipoNucleos TN ON E.ID_TipoNucleo = TN.ID_TipoNucleo " +
-                         "WHERE R.ID_Utilizador = @uid";
+            var parametros = new Dictionary<string, object> { { "@ID_Utilizador", userId } };
 
-            return DALPro.Query<HistoricoLeitorDTO>(sql, new() { { "@uid", userId } });
+            if (nucleoId.HasValue) parametros.Add("@ID_Nucleo", nucleoId.Value);
+            if (inicio.HasValue) parametros.Add("@IntervaloInicio", inicio.Value);
+            if (fim.HasValue) parametros.Add("@IntervaloFim", fim.Value);
+
+            DataTable dt = DALPro.ExecuteSP("Utilizador_ConsultarRequisicoes", parametros);
+
+            var lista = new List<HistoricoLeitorDTO>();
+            foreach (DataRow row in dt.Rows)
+            {
+                lista.Add(new HistoricoLeitorDTO
+                {
+                    Titulo = row["Titulo"].ToString()!,
+                    Nucleo = row["Nome"].ToString()!,
+                    DataRequisicao = Convert.ToDateTime(row["DataRequisicao"]),
+                    DataEntrega = row["DataEntrega"] != DBNull.Value ? Convert.ToDateTime(row["DataEntrega"]) : null
+                });
+            }
+            return lista;
         }
     }
 }

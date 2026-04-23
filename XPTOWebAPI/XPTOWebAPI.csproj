@@ -7,7 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\XPTOBusiness\XPTOBusiness.csproj" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="DalPro">
+      <HintPath>..\DalPro\obj\Debug\net9.0\DalPro.dll</HintPath>
+    </Reference>
+    <Reference Include="XPTOBusiness">
+      <HintPath>..\XPTOBusiness\obj\Debug\net9.0\XPTOBusiness.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

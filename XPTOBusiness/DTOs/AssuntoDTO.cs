@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace XPTOBusiness.DTOs
 {
-    public class TransferirExemplarDTO
+    public class AssuntoDTO
     {
-        public long ID_Exemplar { get; set; }
-        public int ID_TipoNucleo { get; set; }
+        public int ID_Assunto { get; set; }
+        public string Assunto { get; set; }
     }
 }
