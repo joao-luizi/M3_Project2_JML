@@ -1546,8 +1546,8 @@ BEGIN
     -- Se passou todas as validações: Ver o Estado das requisições
     
     SELECT 
-        N.Nome AS Núcleo,
-        O.Titulo AS Obra,
+        N.Nome,
+        O.Titulo,
         R.DataRequisicao AS [Data da Requisição],
         -- Cálculo do Prazo: Data da Requisição + 15 dias
         DATEADD(DAY, 15, R.DataRequisicao) AS [Data Limite],
