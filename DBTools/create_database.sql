@@ -1,7 +1,16 @@
-
-SET ANSI_NULLS ON
+USE [master];
 GO
-SET QUOTED_IDENTIFIER ON
+
+IF NOT EXISTS (SELECT name FROM sys.databases WHERE name = 'M3_ProjectII')
+BEGIN
+    CREATE DATABASE [M3_ProjectII];
+END
+GO
+
+ALTER DATABASE [M3_ProjectII] SET COMPATIBILITY_LEVEL = 160;
+GO
+
+USE [M3_ProjectII];
 GO
 -- Criar o procedimento que cria as tabelas
 CREATE OR ALTER PROCEDURE [dbo].[Criar_Tabelas]	
@@ -141,7 +150,7 @@ BEGIN
 				[Autor] [nvarchar](50) NOT NULL,
 				[ISBN] [nvarchar](50) NOT NULL,
 				[Titulo] [nvarchar](50) NOT NULL,
-				[Capa] [image] NULL,
+				[Capa] [varbinary](max) NULL,
 				[ID_Assunto] [tinyint] NOT NULL,
 			 CONSTRAINT [PK_Obras] PRIMARY KEY CLUSTERED 
 			(
@@ -575,6 +584,52 @@ GO
 -- Inicio de criação de procedimento adicionais que respondem explicitamente ou implicitamente
 -- ao exigido no subject
 
+CREATE OR ALTER PROCEDURE [dbo].[Obras_Remover] @ID_Obra BIGINT 
+AS BEGIN 
+SET NOCOUNT ON; -- Validação de integridade referencial 
+IF EXISTS (SELECT 1 FROM Exemplares WHERE ID_Obra = @ID_Obra) 
+BEGIN PRINT 'ERRO: Não é possível eliminar a obra. Existem exemplares físicos associados a esta obra.'; 
+RETURN; 
+END 
+IF NOT EXISTS (SELECT 1 FROM Obras WHERE ID_Obra = @ID_Obra) 
+BEGIN PRINT 'ERRO: A obra não existe.'; 
+RETURN; 
+END 
+DELETE FROM Obras WHERE ID_Obra = @ID_Obra; PRINT 'Obra eliminada com sucesso.'; 
+END
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[Obras_Atualizar] 
+@ID_Obra BIGINT, 
+@Autor NVARCHAR(50), 
+@ISBN NVARCHAR(50), 
+@Titulo NVARCHAR(50), 
+@ID_Assunto TINYINT, 
+@Capa VARBINARY(MAX) = NULL -- Opcional, para não apagar a capa se não for enviada 
+AS BEGIN SET NOCOUNT ON; 
+IF NOT EXISTS (SELECT 1 FROM Obras WHERE ID_Obra = @ID_Obra) BEGIN PRINT 'ERRO: A obra com o ID ' + CAST(@ID_Obra AS VARCHAR) + ' não existe.'; 
+RETURN; 
+END 
+UPDATE Obras SET Autor = @Autor, ISBN = @ISBN, Titulo = @Titulo, ID_Assunto = @ID_Assunto, Capa = ISNULL(@Capa, Capa) -- Mantém a imagem antiga se a nova for NULL 
+WHERE ID_Obra = @ID_Obra; 
+PRINT 'Obra ID ' + CAST(@ID_Obra AS VARCHAR) + ' atualizada com sucesso.'; 
+END 
+GO
+
+CREATE OR ALTER PROCEDURE [dbo].[Obra_Pesquisar] @Termo NVARCHAR(100)
+AS
+BEGIN
+    SELECT 
+	o.ID_Obra,
+	o.ISBN,
+        O.Autor, 
+        O.Titulo, 
+        o.ID_Assunto
+    FROM Obras O 
+    JOIN Assuntos A ON O.ID_Assunto = A.ID_Assunto
+    WHERE O.Titulo LIKE '%' + @Termo + '%' OR O.Autor LIKE '%' + @Termo + '%';
+END
+GO
 
 CREATE OR ALTER   PROCEDURE [dbo].[Obras_ConsultarTotal] 
 AS

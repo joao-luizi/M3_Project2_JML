@@ -366,8 +366,7 @@ namespace XPTOWebAPI
                     return Results.Ok(new { message = "Transferência concluída com sucesso." });
                 }
                 catch (Exception ex) { return Results.Problem(ex.Message); }
-            }).RequireAuthorization(policy => policy.RequireRole("Admin"))
-            .WithName("TransferirExemplares"); ;
+            }).RequireAuthorization(policy => policy.RequireRole("Admin"));
 
             // Adicionar número de exemplares
             app.MapPost("/api/exemplares/adicionar", (long idObra, int idNucleo, IBibliotecaService servico) =>
