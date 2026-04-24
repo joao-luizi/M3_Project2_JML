@@ -75,17 +75,19 @@ namespace XPTOBusiness.Services
 
             public IEnumerable<ResumoRequisicoesDTO> ObterResumoRequisicoes(DateTime inicio, DateTime fim, string tag)
             {
-                DataTable dt = _nucleoRepo.GetRequisicoesPorPeriodo(inicio, fim, tag);
+                var rows = _nucleoRepo.GetRequisicoesPorPeriodo(inicio, fim, tag);
+
                 var lista = new List<ResumoRequisicoesDTO>();
 
-                foreach (DataRow row in dt.Rows)
+                foreach (dynamic row in rows)
                 {
                     lista.Add(new ResumoRequisicoesDTO(
-                        row["Nome"].ToString() ?? "",
-                        row["Local"].ToString() ?? "",
-                        Convert.ToInt32(row["Requisições no Período:"])
+                        row.Nome?.ToString() ?? "",
+                        row.Local?.ToString() ?? "",
+                        Convert.ToInt32(row.Requisições_no_Período) // adjust if property name changed
                     ));
                 }
+
                 return lista;
             }
 

@@ -52,6 +52,7 @@ namespace XPTOBusiness.Repositories
 
         public List<HistoricoLeitorDTO> GetHistorico(int userId, int? nucleoId, DateTime? inicio, DateTime? fim, string tag)
         {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             var parametros = new Dictionary<string, object> { { "@ID_Utilizador", userId } };
 
             if (nucleoId.HasValue) parametros.Add("@ID_Nucleo", nucleoId.Value);

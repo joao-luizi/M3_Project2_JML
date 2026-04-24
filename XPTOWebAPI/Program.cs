@@ -39,7 +39,38 @@ namespace XPTOWebAPI
                     });
             });
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+                {
+                    Title = "jwtToken",
+                    Version = "v1"
+                });
+
+                options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Description = "Enter: Bearer {your JWT token}",
+                    Name = "Authorization",
+                    In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+                    Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+                    Scheme = "bearer"
+                });
+
+                options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+                {
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
+            });
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
              .AddJwtBearer(options => {
                  options.TokenValidationParameters = new TokenValidationParameters
@@ -322,15 +353,21 @@ namespace XPTOWebAPI
             // ==============================================================================
 
             // Transferir Exemplares
-            app.MapPost("/api/exemplares/transferir", (ExemplarDTO dto, IBibliotecaService servico) =>
+            app.MapPost("/api/exemplares/transferir", (ExemplarDTO dto, INucleoService service) =>
             {
                 try
                 {
-                    servico.TransferirExemplar(dto.ID_Exemplar, dto.ID_Nucleo, "XPTOConn");
-                    return Results.Ok("Transferência concluída com sucesso.");
+                    var t = new TransferenciaExemplaresDTO(
+                    
+                        new List<long> { dto.ID_Exemplar },
+                        dto.ID_Nucleo
+                    );
+                    service.TransferirExemplares(t, "XPTOConn");
+                    return Results.Ok(new { message = "Transferência concluída com sucesso." });
                 }
                 catch (Exception ex) { return Results.Problem(ex.Message); }
-            });
+            }).RequireAuthorization(policy => policy.RequireRole("Admin"))
+            .WithName("TransferirExemplares"); ;
 
             // Adicionar número de exemplares
             app.MapPost("/api/exemplares/adicionar", (long idObra, int idNucleo, IBibliotecaService servico) =>

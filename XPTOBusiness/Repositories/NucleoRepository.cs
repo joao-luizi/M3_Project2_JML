@@ -22,7 +22,7 @@ namespace XPTOBusiness.Repositories
         public void Delete(int id, string tag);
 
         public void TransferirExemplares(string listaIds, long idDestino, string tag);
-        public DataTable GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim, string tag);
+        public IEnumerable<object> GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim, string tag);
         public DataTable GetDisponibilidadePorNucleo(string tag);
         public DataTable GetDisponibilidadePorNucleoeAssunto(string tag);
     }
@@ -82,14 +82,23 @@ namespace XPTOBusiness.Repositories
             DALPro.ExecuteSP("Nucleos_TransferirExemplares", parameters: p);
         }
 
-        public DataTable GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim, string tag)
+        public IEnumerable<object> GetRequisicoesPorPeriodo(DateTime inicio, DateTime fim, string tag)
         {
             DALPro.ConnectionString = GetConnectionsString(tag);
+
             var p = new Dictionary<string, object> {
                 { "@DataInicio", inicio },
                 { "@DataFim", fim }
             };
-            return DALPro.ExecuteSP("Nucleos_MostrarRequisicoes", parameters: p);
+
+            var dt = DALPro.ExecuteSP("Nucleos_MostrarRequisicoes", parameters: p);
+
+            return dt.AsEnumerable().Select(r => new
+            {
+                Nome = r["Nome"]?.ToString(),
+                Local = r["Local"]?.ToString(),
+                Requisicoes = Convert.ToInt32(r["Requisições no Período:"] ?? 0)
+            });
         }
 
         public DataTable GetDisponibilidadePorNucleo(string tag)

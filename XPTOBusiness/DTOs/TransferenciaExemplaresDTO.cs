@@ -8,6 +8,6 @@ namespace XPTOBusiness.DTOs
 {
     public record TransferenciaExemplaresDTO(
         List<long> IdsExemplares,
-        int IdNucleoDestino
+        long IdNucleoDestino
     );
 }
