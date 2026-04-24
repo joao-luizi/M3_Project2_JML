@@ -42,7 +42,17 @@ namespace DalPro
             if (parameters != null)
             {
                 foreach (var p in parameters)
-                    cmd.Parameters.AddWithValue(p.Key, p.Value ?? DBNull.Value);
+                {
+                    if (p.Key == "@Capa")
+                    {
+                        var param = cmd.Parameters.Add(p.Key, SqlDbType.VarBinary);
+                        param.Value = p.Value ?? DBNull.Value;
+                    }
+                    else
+                    {
+                        cmd.Parameters.AddWithValue(p.Key, p.Value ?? DBNull.Value);
+                    }
+                }
             }
 
             return cmd;

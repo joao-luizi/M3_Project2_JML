@@ -43,14 +43,14 @@ namespace XPTOBusiness.Repositories
                 {
                     Titulo = row["Titulo"].ToString()!,
                     Nucleo = row["Nome"].ToString()!,
-                    DataEntrega = Convert.ToDateTime(row["Data Limite"]).ToString("yyyy-MM-dd"),
+                    DataLimite = Convert.ToDateTime(row["Data Limite"]),
                     Status = row["Situacao"].ToString()!
                 });
             }
             return lista;
         }
 
-        public List<HistoricoLeitorDTO> GetHistorico(int userId, int? nucleoId, DateTime? inicio, DateTime? fim)
+        public List<HistoricoLeitorDTO> GetHistorico(int userId, int? nucleoId, DateTime? inicio, DateTime? fim, string tag)
         {
             var parametros = new Dictionary<string, object> { { "@ID_Utilizador", userId } };
 

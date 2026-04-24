@@ -1,0 +1,1 @@
+*This project has been created as part of the upskill .net curriculum by [@joao-luizi](https://github.com/joao-luizi), [@llm-Lucas](https://github.com/llm-Lucas),  [@maialuis87-bit](https://github.com/maialuis87-bit).*

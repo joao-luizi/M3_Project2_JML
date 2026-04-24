@@ -10,9 +10,11 @@ using System.Text;
 using XPTOBusiness.DTOs;
 using XPTOBusiness.Models;
 using XPTOBusiness.Repositories;
+using XPTOBusiness.Services;
 using XPTOBusiness.Services.XPTOBusiness.Services;
 using XPTOWebAPI.Services;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Markdig;
 
 
 
@@ -37,6 +39,7 @@ namespace XPTOWebAPI
                     });
             });
             builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
             builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
              .AddJwtBearer(options => {
                  options.TokenValidationParameters = new TokenValidationParameters
@@ -50,19 +53,24 @@ namespace XPTOWebAPI
                      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
                  };
              });
-            builder.Services.AddScoped<IUtilizadorService, UtilizadorService>();
+            builder.Services.AddScoped<IBibliotecaService, BibliotecaService>();
             builder.Services.AddScoped<IRequisicaoService, RequisicaoService>();
+            builder.Services.AddScoped<INucleoService, NucleoService>();
+            builder.Services.AddScoped<IUtilizadorService, UtilizadorService>();
+
+            builder.Services.AddScoped<IAssuntosRepository, AssuntosRepository>();
+            builder.Services.AddScoped<IExemplaresNucleosRepository, ExemplaresNucleosRepository>();
             builder.Services.AddScoped<IExemplaresRepository, ExemplaresRepository>();
             builder.Services.AddScoped<IInfracoesRepository, InfracoesRepository>();
+            builder.Services.AddScoped<ILeitorRepository, LeitorRepository>();
+            builder.Services.AddScoped<INucleoRepository, NucleoRepository>();
+            builder.Services.AddScoped<IObrasRepository, ObrasRepository>();
             builder.Services.AddScoped<IRequisicoesRepository, RequisicoesRepository>();
+            builder.Services.AddScoped<ITipoNucleoRepository, TipoNucleoRepository>();
             builder.Services.AddScoped<ITipoUtilizadoresRepository, TipoUtilizadoresRepository>();
             builder.Services.AddScoped<IUtilizadoresRepository, UtilizadoresRepository>();
-            builder.Services.AddScoped<INucleoRepository, NucleoRepository>();
-            builder.Services.AddScoped<ITipoNucleoRepository, TipoNucleoRepository>();
-            builder.Services.AddScoped<IExemplaresNucleosRepository, ExemplaresNucleosRepository>();
+            
 
-            builder.Services.AddScoped<NucleoService>();
-            builder.Services.AddScoped<UtilizadorService>();
 
 // Add services to the container.
             builder.Services.AddAuthorization();
@@ -73,16 +81,7 @@ namespace XPTOWebAPI
             app.UseCors("cors");
             // Configure the HTTP request pipeline.
             app.UseHttpsRedirection();
-            // Eliminar Obra
-            app.MapDelete("/api/obras/{id}", (long id, IBibliotecaService servico) =>
-            {
-                try
-                {
-                    servico.EliminarObra(id);
-                    return Results.Ok("Obra eliminada com sucesso.");
-                }
-                catch (Exception ex) { return Results.Problem(ex.Message); }
-            });
+            
 
             app.UseAuthentication();
             app.UseAuthorization();
@@ -94,6 +93,21 @@ namespace XPTOWebAPI
             }
 
 
+            app.MapGet("/", async () =>
+            {
+                var path = Path.Combine(AppContext.BaseDirectory, "README.md");
+
+                if (!File.Exists(path))
+                    return Results.Redirect("/swagger");
+
+                var markdown = await File.ReadAllTextAsync(path);
+
+                if (string.IsNullOrWhiteSpace(markdown))
+                    return Results.Redirect("/swagger");
+
+                var html = Markdown.ToHtml(markdown);
+                return Results.Content(html, "text/html");
+            });
 
             //5, 6, 10, 11, 12, 14, 15
             //5.Cada leitor pode ter requisitados, no máximo, quatro exemplares
@@ -154,11 +168,11 @@ namespace XPTOWebAPI
             });
 
             //LOGIN
-            app.MapPost("/api/auth/login", (string user, string pass, UtilizadorService service, IConfiguration config) => {
+            app.MapPost("/api/auth/login", (string user, string pass, IUtilizadorService service, IConfiguration config) => {
                 var u = service.Autenticar(user, pass, "XPTOConn");
                 if (u == null) return Results.Unauthorized();
 
-                var token = service.GerarToken(u, config);
+                var token = service.GerarToken(u, config, "XPTOConn");
                 return Results.Ok(new
                 {
                     Token = token,
@@ -213,39 +227,40 @@ namespace XPTOWebAPI
             //NUCLEOS
             var nucleosGroup = app.MapGroup("/api/nucleos");
 
-            nucleosGroup.MapGet("/", (NucleoService service, string tag) =>
-                Results.Ok(service.ObterTodos()))
+            nucleosGroup.MapGet("/", (INucleoService service) =>
+                Results.Ok(service.ObterTodos("XPTOConn")))
                 .WithName("GetNucleos")
                 .Produces<List<NucleoDTO>>(StatusCodes.Status200OK);
 
-            nucleosGroup.MapGet("/relatorio-requisicoes", (DateTime inicio, DateTime fim, NucleoService service, string tag) =>
-                Results.Ok(service.ObterResumoRequisicoes(inicio, fim, tag)))
-                .WithName("GetRelatorioRequisicoes");
-
-            nucleosGroup.MapGet("/disponibilidade", (bool porAssunto, NucleoService service) =>
-                Results.Ok(service.ObterDisponibilidade(porAssunto)))
-                .WithName("GetDisponibilidade");
-
-            nucleosGroup.MapPost("/", (SaveNucleoDTO dto, NucleoService service) =>
+            nucleosGroup.MapPost("/", (SaveNucleoDTO dto, INucleoService service) =>
             {
-                service.CriarNucleo(dto);
+                service.CriarNucleo(dto, "XPTOConn");
                 return Results.Created($"/api/nucleos", dto);
             })
             .RequireAuthorization(policy => policy.RequireRole("Admin"))
             .WithName("CreateNucleo");
 
-            nucleosGroup.MapPost("/transferencia", (TransferenciaExemplaresDTO dados, NucleoService service) =>
+            nucleosGroup.MapGet("/relatorio-requisicoes", (DateTime inicio, DateTime fim, INucleoService service) =>
+                Results.Ok(service.ObterResumoRequisicoes(inicio, fim, "XPTOConn")))
+                .WithName("GetRelatorioRequisicoes");
+
+            nucleosGroup.MapGet("/disponibilidade", (bool porAssunto, INucleoService service) =>
+                Results.Ok(service.ObterDisponibilidade(porAssunto, "XPTOConn")))
+                .WithName("GetDisponibilidade");
+
+
+            nucleosGroup.MapPost("/transferencia", (TransferenciaExemplaresDTO dados, INucleoService service) =>
             {
-                service.TransferirExemplares(dados);
+                service.TransferirExemplares(dados, "XPTOConn");
                 return Results.Ok(new { message = "Transferência concluída com sucesso." });
             })
             .RequireAuthorization(policy => policy.RequireRole("Admin"))
             .WithName("TransferirExemplares");
 
             //ponto 13
-            nucleosGroup.MapGet("/dashboard", (NucleoService service) =>
+            nucleosGroup.MapGet("/dashboard", (INucleoService service) =>
             {
-                var dados = service.ObterDadosDecisao();
+                var dados = service.ObterDadosDecisao("XPTOConn");
                 return Results.Ok(dados);
             })
             .RequireAuthorization(policy => policy.RequireRole("Admin"))
@@ -259,7 +274,7 @@ namespace XPTOWebAPI
             {
                 try
                 {
-                    var resultados = servico.PesquisarObras(termo);
+                    var resultados = servico.PesquisarObras(termo, "XPTOConn");
                     return Results.Ok(resultados);
                 }
                 catch (Exception ex) { return Results.Problem(ex.Message); }
@@ -271,7 +286,7 @@ namespace XPTOWebAPI
                 try
                 {
                     obra.ID_Obra = 0; // Forçar INSERT
-                    servico.GuardarObra(obra);
+                    servico.GuardarObra(obra, "XPTOConn");
                     return Results.Ok("Obra registada com sucesso.");
                 }
                 catch (Exception ex) { return Results.Problem(ex.Message); }
@@ -283,7 +298,7 @@ namespace XPTOWebAPI
                 try
                 {
                     obra.ID_Obra = id; // Forçar UPDATE com o ID passado no URL
-                    servico.GuardarObra(obra);
+                    servico.GuardarObra(obra, "XPTOConn");
                     return Results.Ok("Obra atualizada com sucesso.");
                 }
                 catch (Exception ex) { return Results.Problem(ex.Message); }
@@ -294,11 +309,12 @@ namespace XPTOWebAPI
             {
                 try
                 {
-                    servico.EliminarObra(id);
+                    servico.EliminarObra(id, "XPTOConn");
                     return Results.Ok("Obra eliminada com sucesso.");
                 }
                 catch (Exception ex) { return Results.Problem(ex.Message); }
             });
+
 
 
             // ==============================================================================
@@ -306,11 +322,11 @@ namespace XPTOWebAPI
             // ==============================================================================
 
             // Transferir Exemplares
-            app.MapPost("/api/exemplares/transferir", (TransferirExemplarDTO dto, IBibliotecaService servico) =>
+            app.MapPost("/api/exemplares/transferir", (ExemplarDTO dto, IBibliotecaService servico) =>
             {
                 try
                 {
-                    servico.TransferirExemplar(dto.ID_Exemplar, dto.ID_TipoNucleo);
+                    servico.TransferirExemplar(dto.ID_Exemplar, dto.ID_Nucleo, "XPTOConn");
                     return Results.Ok("Transferência concluída com sucesso.");
                 }
                 catch (Exception ex) { return Results.Problem(ex.Message); }
@@ -321,7 +337,7 @@ namespace XPTOWebAPI
             {
                 try
                 {
-                    servico.AdicionarExemplar(idObra, idNucleo);
+                    servico.AdicionarExemplar(idObra, idNucleo, "XPTOConn");
                     return Results.Ok("Exemplar adicionado com sucesso à obra.");
                 }
                 catch (Exception ex) { return Results.Problem(ex.Message); }
@@ -337,7 +353,7 @@ namespace XPTOWebAPI
             {
                 try
                 {
-                    var situacao = servico.ObterSituacaoLeitor(id);
+                    var situacao = servico.ObterSituacaoLeitor(id, "XPTOConn");
                     if (situacao == null || situacao.Count == 0)
                         return Results.NotFound("Nenhuma requisição ativa encontrada para este leitor.");
 
@@ -356,7 +372,7 @@ namespace XPTOWebAPI
             {
                 try
                 {
-                    var historico = servico.ObterHistoricoLeitor(id, nucleoId, inicio, fim);
+                    var historico = servico.ObterHistoricoLeitor(id, nucleoId, inicio, fim, "XPTOConn");
                     return Results.Ok(historico);
                 }
                 catch (Exception ex) { return Results.Problem(ex.Message); }

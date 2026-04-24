@@ -1,3 +1,5 @@
 <Solution>
+  <Project Path="../DalPro/DalPro.csproj" />
+  <Project Path="../XPTOBusiness/XPTOBusiness.csproj" />
   <Project Path="XPTOWebAPI.csproj" />
 </Solution>

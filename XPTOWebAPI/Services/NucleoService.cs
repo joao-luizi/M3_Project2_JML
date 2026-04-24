@@ -10,26 +10,34 @@ namespace XPTOBusiness.Services
     using global::XPTOBusiness.Models;
     using global::XPTOBusiness.Repositories;
     using System.Data;
+    using XPTOWebAPI.Services;
 
     namespace XPTOBusiness.Services
     {
         public interface INucleoService
         {
-            public IEnumerable<NucleoDTO> ObterTodos();
-            public void TransferirExemplares(TransferenciaExemplaresDTO dados);
-            public IEnumerable<ResumoRequisicoesDTO> ObterResumoRequisicoes(DateTime inicio, DateTime fim);
-            public IEnumerable<DisponibilidadeDTO> ObterDisponibilidade(bool porAssunto);
+            public IEnumerable<NucleoDTO> ObterTodos(string tag);
+            public void TransferirExemplares(TransferenciaExemplaresDTO dados, string tag);
+            public IEnumerable<ResumoRequisicoesDTO> ObterResumoRequisicoes(DateTime inicio, DateTime fim, string tag);
+            public IEnumerable<DisponibilidadeDTO> ObterDisponibilidade(bool porAssunto, string tag);
+            public void CriarNucleo(SaveNucleoDTO dto, string tag);
+            public dynamic ObterDadosDecisao(string tag);
         }
 
         public class NucleoService : INucleoService
         {
             private readonly INucleoRepository _nucleoRepo;
             private readonly ITipoNucleoRepository _tipoRepo;
+            private readonly IExemplaresNucleosRepository _exemplaresRepos;
+            private readonly ILogger _logger;
 
-            public NucleoService(INucleoRepository nucleoRepo, ITipoNucleoRepository tipoRepo)
+            public NucleoService(ILogger<NucleoService> logger, INucleoRepository nucleoRepo, 
+                ITipoNucleoRepository tipoRepo, IExemplaresNucleosRepository exemplaresRepos)
             {
+                _logger = logger;
                 _nucleoRepo = nucleoRepo;
                 _tipoRepo = tipoRepo;
+                _exemplaresRepos = exemplaresRepos;
             }
 
             public IEnumerable<NucleoDTO> ObterTodos(string tag)
@@ -50,8 +58,8 @@ namespace XPTOBusiness.Services
             {
                 foreach (var idExemplar in dados.IdsExemplares)
                 {
-                    var vinculoAtual = _exemplaresRepo.GetByExemplarId(idExemplar);
-                    var totalNoNucleo = _exemplaresRepo.GetAll()
+                    var vinculoAtual = _exemplaresRepos.GetByExemplarId(idExemplar, tag);
+                    var totalNoNucleo = _exemplaresRepos.GetAll(tag)
                                         .Count(x => x.ID_Nucleo == vinculoAtual.ID_Nucleo);
 
                     if (totalNoNucleo <= 1)

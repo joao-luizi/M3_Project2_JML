@@ -13,21 +13,22 @@ namespace XPTOWebAPI.Services
         public bool CancelUser(long id, string tag);
 
         public int DeleteInactiveUsers(string tag);
+
+        public Utilizador? Autenticar(string username, string password, string tag);
+
+        public string GerarToken(Utilizador user, IConfiguration config, string tag);
     }
     public class UtilizadorService : IUtilizadorService
     {
         private readonly IUtilizadoresRepository _utilizadoresRepo;
         private readonly IRequisicoesRepository _requisicoesRepo;
-        //private readonly IExemplaresRepository _exemplaresRepo;
         private readonly IInfracoesRepository _infracoesRepo;
 
         private readonly ILogger _logger;
-        public UtilizadorService(ILogger<UtilizadorService> logger, IUtilizadoresRepository utilizadoresRepo, IRequisicoesRepository requisicoesRepo,
-            IExemplaresRepository exemplaresRepo, IInfracoesRepository infracoesRepo)
+        public UtilizadorService(ILogger<UtilizadorService> logger, IUtilizadoresRepository utilizadoresRepo, IRequisicoesRepository requisicoesRepo, IInfracoesRepository infracoesRepo)
         {
             _utilizadoresRepo = utilizadoresRepo;
             _requisicoesRepo = requisicoesRepo;
-            //_exemplaresRepo = exemplaresRepo;
             _infracoesRepo = infracoesRepo;
             _logger = logger;
         }
@@ -119,7 +120,7 @@ namespace XPTOWebAPI.Services
             _utilizadoresRepo.Insert(novoUser, tag);
         }
 
-        public string GerarToken(Utilizador user, IConfiguration config)
+        public string GerarToken(Utilizador user, IConfiguration config, string tag)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

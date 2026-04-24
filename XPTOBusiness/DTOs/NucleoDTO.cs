@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace XPTOBusiness.DTOs
 {
     public record NucleoDTO(
-        int Id,
+        long Id,
         string Nome,
         string Local,
         string TipoDescricao

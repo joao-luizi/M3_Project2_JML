@@ -1,5 +1,4 @@
-﻿using Azure;
-using DalPro;
+﻿using DalPro;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;

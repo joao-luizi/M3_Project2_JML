@@ -25,8 +25,8 @@ namespace XPTOBusiness.Repositories
 
         public int CountByObraAndNucleo(long obraId, long nucleoId, string tag);
 
-        public void TransferirExemplar(long idExemplar, int idNovoNucleo);
-        public void AdicionarExemplar(long idObra, int idNucleoInicial);
+        public void TransferirExemplar(long idExemplar, long idNovoNucleo, string tag);
+        public void AdicionarExemplar(long idObra, int idNucleoInicial, string tag);
     }
 
     public class ExemplaresRepository : IExemplaresRepository
@@ -200,19 +200,21 @@ namespace XPTOBusiness.Repositories
             return result != null ? Convert.ToInt32(result) : 0;
         }
 
-        public void TransferirExemplar(long idExemplar, int idNovoNucleo)
+        public void TransferirExemplar(long idExemplar, long idNovoNucleo, string tag)
         {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             var p = new Dictionary<string, object>
             {
                 { "@ID_Exemplar", idExemplar },
                 { "@ID_Nucleo", idNovoNucleo }
             };
-            DALPro.ExecuteSP("sp_TransferirExemplar", p);
+            DALPro.ExecuteSP("TransferirExemplar", p);
         }
 
         // Atualizar número de exemplares
-        public void AdicionarExemplar(long idObra, int idNucleoInicial)
+        public void AdicionarExemplar(long idObra, int idNucleoInicial, string tag)
         {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             var p = new Dictionary<string, object>
             {
                 { "@ID_Obra", idObra },

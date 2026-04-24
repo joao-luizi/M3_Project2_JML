@@ -1,4 +1,4 @@
-﻿using Azure;
+﻿
 using DalPro;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -39,13 +39,14 @@ namespace XPTOBusiness.Repositories
         public List<ObraDTO> Search(string termo, string tag)
         {
             DALPro.ConnectionString = GetConnectionsString(tag);
-            return DALPro.Query<ObraDTO>("EXEC sp_Obras_Search @Termo", new() { { "@Termo", termo ?? "" } });
+            return DALPro.Query<ObraDTO>("EXEC Obra_Pesquisar @Termo", new() { { "@Termo", termo ?? "" } });
         }
 
 
-        public void CreateUpdate(ObraDTO obra)
+        public void CreateUpdate(ObraDTO obra, string tag)
         {
             // Se o ID_Obra for nulo ou 0, é um CREATE (Inserir Nova)
+            DALPro.ConnectionString = GetConnectionsString(tag);
             if (obra.ID_Obra == null || obra.ID_Obra == 0)
             {
                 string sql = "EXEC Obras_InserirNova @Autor, @ISBN, @Titulo, @ID_Assunto";
@@ -56,7 +57,7 @@ namespace XPTOBusiness.Repositories
                     { "@ID_Assunto", obra.ID_Assunto },
                     { "@Capa", obra.Capa ?? (object)DBNull.Value }
                 };
-                DALPro.ExecuteSP(sql, p);
+                DALPro.Execute(sql, p);
             }
             else
             {
@@ -69,16 +70,17 @@ namespace XPTOBusiness.Repositories
                     { "@ID_Assunto", obra.ID_Assunto },
                     { "@Capa", obra.Capa ?? (object)DBNull.Value }
                 };
-                DALPro.ExecuteSP(sql, p);
+                DALPro.Execute(sql, p);
             }
         }
 
-        public void Delete(long id)
+        public void Delete(long id, string tag)
         {
+            DALPro.ConnectionString = GetConnectionsString(tag);
             string sql = "EXEC Obras_Remover @ID_Obra";
             var p = new Dictionary<string, object> { { "@ID_Obra", id } };
 
-            DALPro.ExecuteSP(sql, p);
+            DALPro.Execute(sql, p);
         }
 
     }

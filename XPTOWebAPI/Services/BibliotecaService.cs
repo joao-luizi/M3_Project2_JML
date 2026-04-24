@@ -11,38 +11,78 @@ namespace XPTOBusiness.Services
     public interface IBibliotecaService
     {
         public List<SituacaoLeitorDTO> ObterSituacaoLeitor(int userId, string tag);
+        public List<HistoricoLeitorDTO> ObterHistoricoLeitor(int userId, int? nucleoId, DateTime? inicio, DateTime? fim, string tag);
+        public List<ObraDTO> PesquisarObras(string termo, string tag);
+        public void GuardarObra(ObraDTO obra, string tag);
+        public void EliminarObra(long id, string tag);
 
+        public void TransferirExemplar(long idExemplar, long idNovoNucleo, string tag);
+
+        public void AdicionarExemplar(long idObra, int idNucleo, string tag);
 
     }
     public class BibliotecaService : IBibliotecaService
     {
         private readonly ILeitorRepository _leitorRepo;
+        private readonly IObrasRepository _obrasRepo;
+        private readonly IExemplaresRepository _exemplaresRepo;
+        private readonly ILogger _logger;
+        public BibliotecaService(
+            ILogger<BibliotecaService> logger,
+            ILeitorRepository leitorRepo,
+            IObrasRepository obrasRepo,
+            IExemplaresRepository exemplaresRepo)
+        {
+            _logger = logger;
+            _leitorRepo = leitorRepo;
+            _obrasRepo = obrasRepo;
+            _exemplaresRepo = exemplaresRepo;
+        }
 
-        public BibliotecaService(ILeitorRepository leitorRepo) => _leitorRepo = leitorRepo;
-
+        // ==========================================
+        // LÓGICA DO LEITOR
+        // ==========================================
         public List<SituacaoLeitorDTO> ObterSituacaoLeitor(int userId, string tag)
         {
-            var dados = _leitorRepo.GetSituacaoAtiva(userId, tag);
-            var agora = DateTime.Now;
+            return _leitorRepo.GetSituacaoAtiva(userId, tag);
+        }
+        public List<HistoricoLeitorDTO> ObterHistoricoLeitor(int userId, int? nucleoId, DateTime? inicio, DateTime? fim, string tag)
+        {
+            return _leitorRepo.GetHistorico(userId, nucleoId, inicio, fim, tag);
+        }
 
-            return dados.Select(d =>
-            {
-                var diff = (d.DataLimite - agora).TotalDays;
-                string status = "Devolver em breve";
+        // ==========================================
+        // LÓGICA DAS OBRAS
+        // ==========================================
+        public List<ObraDTO> PesquisarObras(string termo, string tag)
+        {
+            return _obrasRepo.Search(termo, tag);
+        }
 
-                if (diff < 0) status = "ATRASO";
-                else if (diff < 3) status = "Devolução URGENTE";
-                else if (diff <= 5) status = "Devolver em breve";
-                else status = "Regular";
+        public void GuardarObra(ObraDTO obra, string tag)
+        {
+            if (string.IsNullOrWhiteSpace(obra.Titulo))
+                throw new ArgumentException("O título da obra é obrigatório.");
 
-                return new SituacaoLeitorDTO
-                {
-                    Titulo = d.Titulo,
-                    Nucleo = d.Nucleo,
-                    DataLimite = d.DataLimite,
-                    Status = status
-                };
-            }).ToList();
+            _obrasRepo.CreateUpdate(obra, tag);
+        }
+
+        public void EliminarObra(long id, string tag)
+        {
+            _obrasRepo.Delete(id, tag);
+        }
+
+        // ==========================================
+        // LÓGICA DOS EXEMPLARES
+        // ==========================================
+        public void TransferirExemplar(long idExemplar, long idNovoNucleo, string tag)
+        {
+            _exemplaresRepo.TransferirExemplar(idExemplar, idNovoNucleo, tag);
+        }
+
+        public void AdicionarExemplar(long idObra, int idNucleo, string tag)
+        {
+            _exemplaresRepo.AdicionarExemplar(idObra, idNucleo, tag);
         }
     }
 }
